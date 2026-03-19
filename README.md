@@ -6,6 +6,11 @@ Kör en Node.js-server för UI och PDF-generering, och startar Python-processer 
 
 ---
 
+
+https://github.com/user-attachments/assets/8b23aace-c876-48f7-ad1f-e36c046cacd4
+
+
+---
 ## Stack
 
 - Node.js + Express - server, PDF-generering (PDFKit)
@@ -45,7 +50,7 @@ npm start
 | Marknadsplatser | Blocket, Hemnet, Bytbil |
 | Handel | Willys, Systembolaget, Elgiganten, Inet |
 | Politik | Liberalerna, Miljöpartiet, Vänsterpartiet |
-| Community | Byggahus |
+| Community | Byggahus, Loveable |
 
 ### Internationellt
 | | |
