@@ -8,9 +8,9 @@ Kör en Node.js-server för UI och PDF-generering, och startar Python-processer 
 
 ## Stack
 
-- Node.js + Express — server, PDF-generering (PDFKit)
-- Python — alla plattformskontroller, körs parallellt via `ThreadPoolExecutor`
-- IntelX + Breach.vip — sökning i läckta databaser
+- Node.js + Express - server, PDF-generering (PDFKit)
+- Python - alla plattformskontroller, körs parallellt via `ThreadPoolExecutor`
+- IntelX + Breach.vip - sökning i läckta databaser
 
 ---
 
@@ -23,7 +23,7 @@ npm install
 pip install requests cryptography
 ```
 
-Valfritt — skapa en `.env` i projektmappen för att ändra porten:
+Valfritt - skapa en `.env` i projektmappen för att ändra porten:
 
 ```env
 PORT=33
@@ -59,8 +59,8 @@ npm start
 
 ## Rapportens innehåll
 
-1. Sammanfattning — antal träffar, datumintervall, darknet- och lösenordsloggsträffar
-2. Profil — namnanalys, geografi, politiska och mediesignaler, riskvarningar
+1. Sammanfattning - antal träffar, datumintervall, darknet- och lösenordsloggsträffar
+2. Profil - namnanalys, geografi, politiska och mediesignaler, riskvarningar
 3. Riskfördelning per allvarlighetsgrad
 4. Källkategorier
 5. Hotindikatorer
