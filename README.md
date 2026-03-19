@@ -1,4 +1,4 @@
-# osint-report
+# SvenkOsint
 
 Egenhostad OSINT-verktyg. Mata in en e-postadress, få tillbaka en PDF med intrångsdata, kontokontroller mot 38 tjänster och en enkel beteendeprofil.
 
