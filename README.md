@@ -20,7 +20,7 @@ Kör en Node.js-server för UI och PDF-generering, och startar Python-processer 
 
 ```bash
 npm install
-pip install requests cryptography
+pip install -r requirements.txt
 ```
 
 Valfritt - skapa en `.env` i projektmappen för att ändra porten:
