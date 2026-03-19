@@ -1,0 +1,119 @@
+# osint-report
+
+Egenhostad OSINT-verktyg. Mata in en e-postadress, få tillbaka en PDF med intrångsdata, kontokontroller mot 38 tjänster och en enkel beteendeprofil.
+
+Kör en Node.js-server för UI och PDF-generering, och startar Python-processer för plattformskontrollerna.
+
+---
+
+## Stack
+
+- Node.js + Express — server, PDF-generering (PDFKit)
+- Python — alla plattformskontroller, körs parallellt via `ThreadPoolExecutor`
+- IntelX + Breach.vip — sökning i läckta databaser
+
+---
+
+## Installation
+
+**Krav:** Node.js 18+, Python 3.10+
+
+```bash
+npm install
+pip install requests cryptography
+```
+
+Valfritt — skapa en `.env` i projektmappen för att ändra porten:
+
+```env
+PORT=33
+```
+
+```bash
+npm start
+# → http://localhost:33
+```
+
+---
+
+## Vad som kontrolleras
+
+### Sverige
+| Kategori | |
+|---|---|
+| Media | Aftonbladet, Expressen, DN, DI, TV4, Samnytt |
+| Marknadsplatser | Blocket, Hemnet, Bytbil |
+| Handel | Willys, Systembolaget, Elgiganten, Inet |
+| Politik | Liberalerna, Miljöpartiet, Vänsterpartiet |
+| Community | Byggahus |
+
+### Internationellt
+| | |
+|---|---|
+| USA | Adobe, Archive.org, Bible.com, Bodybuilding, DevRant, Flickr, Insightly, LastPass, Medal, Microsoft, Office365, TeamTreehouse, Vimeo, Vivino |
+| Ryssland | Mail.ru, Rambler |
+| Storbritannien | Deliveroo |
+| Globalt | Lovense, xVideos, Plurk, W3Schools, Freelancer |
+
+---
+
+## Rapportens innehåll
+
+1. Sammanfattning — antal träffar, datumintervall, darknet- och lösenordsloggsträffar
+2. Profil — namnanalys, geografi, politiska och mediesignaler, riskvarningar
+3. Riskfördelning per allvarlighetsgrad
+4. Källkategorier
+5. Hotindikatorer
+6. Plattformsnärvaro (endast hittade konton, med detaljer)
+7. Breach.vip-träffar
+8. Rekommendationer
+
+---
+
+## Inmatningsfält
+
+| Fält | Notering |
+|---|---|
+| E-post | Obligatoriskt |
+| Namn | Förbättrar sökprecisionen |
+| Telefon / Användarnamn | Visas i rapporthuvudet |
+| Personnummer | Används för Willys-kontroll |
+
+---
+
+## Struktur
+
+```
+src/
+├── server.js
+├── check_email.py          startas per rapport, kör alla plattformskontroller
+├── public/index.html
+├── routes/
+│   ├── generate.js         POST /generate
+│   ├── report.js           POST /report
+│   ├── search.js           POST /search
+│   └── intelx.js           POST /intelx
+├── lib/
+│   ├── pdf.js
+│   ├── profile.js
+│   ├── parser.js
+│   ├── intelx.js
+│   └── breachvip.js
+└── modules/
+    ├── sweden/
+    │   ├── media/
+    │   ├── marketplace/
+    │   ├── retail/
+    │   ├── political/
+    │   └── community/
+    ├── us/
+    ├── russia/
+    ├── uk/
+    └── global_/
+```
+
+---
+
+## Ansvarsfriskrivning
+
+Endast för auktoriserad användning. Se till att du har tillstånd innan du kör detta mot någon person.

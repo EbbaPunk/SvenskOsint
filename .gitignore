@@ -1,0 +1,21 @@
+# Node
+node_modules/
+*.log
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+
+# Generated outputs
+*.pdf
+report_output.txt
+test.json
+
+# OS / editors
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

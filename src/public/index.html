@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OSINT Intelligence Report</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #0d0f18;
+      color: #e2e8f0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 16px;
+    }
+
+    h1 {
+      font-size: 1.45rem;
+      font-weight: 700;
+      color: #f8fafc;
+      letter-spacing: -0.3px;
+      margin-bottom: 6px;
+    }
+
+    p.sub {
+      color: #64748b;
+      font-size: 0.83rem;
+      margin-bottom: 32px;
+    }
+
+    .card {
+      background: #151824;
+      border: 1px solid #252a3d;
+      border-radius: 12px;
+      padding: 28px;
+      width: 100%;
+      max-width: 560px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .section-label {
+      font-size: 0.68rem;
+      font-weight: 700;
+      color: #334155;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: 2px 0 4px;
+    }
+
+    .field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .field-group label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #475569;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .field-group label .req {
+      color: #4f6ef7;
+      margin-left: 2px;
+    }
+
+    .field-group label .opt {
+      color: #334155;
+      font-weight: 400;
+      font-size: 0.7rem;
+      margin-left: 4px;
+      text-transform: none;
+      letter-spacing: 0;
+    }
+
+    input, select {
+      background: #1c2033;
+      border: 1px solid #252a3d;
+      border-radius: 8px;
+      color: #e2e8f0;
+      font-size: 0.93rem;
+      padding: 10px 14px;
+      outline: none;
+      transition: border-color 0.18s;
+      width: 100%;
+    }
+    input:focus, select:focus { border-color: #4f6ef7; }
+    input::placeholder { color: #2d3550; }
+    input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
+    select { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%234f6ef7' d='M6 8L1 3h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px; }
+    select option { background: #1c2033; }
+
+    .divider {
+      height: 1px;
+      background: #1a1f2e;
+      margin: 2px 0;
+    }
+
+    .row {
+      display: flex;
+      gap: 10px;
+    }
+    .row .field-group { flex: 1; }
+
+    button {
+      padding: 11px 22px;
+      background: #4f6ef7;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.15s, opacity 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 4px;
+    }
+    button:hover    { background: #3b5bdb; }
+    button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .spinner {
+      width: 14px; height: 14px;
+      border: 2px solid rgba(255,255,255,0.25);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.65s linear infinite;
+      flex-shrink: 0;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    #status {
+      margin-top: 4px;
+      font-size: 0.82rem;
+      border-radius: 7px;
+      padding: 10px 13px;
+      display: none;
+    }
+    #status.info    { display:flex; align-items:center; gap:8px; background:rgba(79,110,247,.08); border:1px solid rgba(79,110,247,.25); color:#a5b4fc; }
+    #status.error   { display:block; background:rgba(220,38,38,.1);  border:1px solid rgba(220,38,38,.3);  color:#fca5a5; }
+    #status.success { display:block; background:rgba(22,163,74,.1);  border:1px solid rgba(22,163,74,.3);  color:#86efac; }
+  </style>
+</head>
+<body>
+
+  <h1>OSINT Intelligence Report</h1>
+  <p class="sub">Enter target details — the PDF is generated and downloaded automatically.</p>
+
+  <div class="card">
+
+    <div class="section-label">Target</div>
+
+    <div class="field-group">
+      <label>Email <span class="req">*</span></label>
+      <input id="email" type="email" placeholder="target@example.com" autocomplete="off" />
+    </div>
+
+    <div class="row">
+      <div class="field-group">
+        <label>Full Name <span class="opt">optional</span></label>
+        <input id="name" type="text" placeholder="John Doe" autocomplete="off" />
+      </div>
+      <div class="field-group">
+        <label>Phone <span class="opt">optional</span></label>
+        <input id="phone" type="text" placeholder="+46 70 000 0000" autocomplete="off" />
+      </div>
+    </div>
+
+    <div class="field-group">
+      <label>Username <span class="opt">optional</span></label>
+      <input id="username" type="text" placeholder="handle / username" autocomplete="off" />
+    </div>
+
+    <div class="field-group">
+      <label>Personnummer <span class="opt">YYMMDD-XXXX — used for Willys lookup</span></label>
+      <input id="personnummer" type="text" placeholder="051220-6970" autocomplete="off" />
+    </div>
+
+    <div class="divider"></div>
+
+    <button id="btn">Generate PDF</button>
+    <div id="status"></div>
+  </div>
+
+  <script>
+    const emailEl        = document.getElementById('email');
+    const nameEl         = document.getElementById('name');
+    const phoneEl        = document.getElementById('phone');
+    const usernameEl     = document.getElementById('username');
+    const personnummerEl = document.getElementById('personnummer');
+    const btn            = document.getElementById('btn');
+    const statusEl       = document.getElementById('status');
+
+    personnummerEl.addEventListener('input', () => {
+      let v = personnummerEl.value.replace(/[^0-9]/g, '');
+      if (v.length > 6) v = v.slice(0, 6) + '-' + v.slice(6, 10);
+      personnummerEl.value = v;
+    });
+
+    function setStatus(type, html) {
+      statusEl.className = type;
+      statusEl.innerHTML = html;
+    }
+
+    async function generate() {
+      const email = emailEl.value.trim();
+      if (!email || !email.includes('@')) { emailEl.focus(); return; }
+
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span>Working…';
+      setStatus('info', '<span class="spinner"></span>Running platform checks and intelligence searches…');
+
+      try {
+        const res = await fetch('/generate', {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify({
+            email,
+            name:         nameEl.value.trim()         || undefined,
+            phone:        phoneEl.value.trim()         || undefined,
+            username:     usernameEl.value.trim()      || undefined,
+            personnummer: personnummerEl.value.trim()  || undefined,
+          }),
+        });
+
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({ error: res.statusText }));
+          setStatus('error', 'Error: ' + (err.error || res.statusText));
+          return;
+        }
+
+        const blob     = await res.blob();
+        const url      = URL.createObjectURL(blob);
+        const filename = `report-${email.replace(/[^a-z0-9]/gi, '_')}.pdf`;
+        const a        = document.createElement('a');
+        a.href         = url;
+        a.download     = filename;
+        a.click();
+        URL.revokeObjectURL(url);
+
+        setStatus('success', `Report downloaded: <strong>${filename}</strong>`);
+      } catch (err) {
+        setStatus('error', 'Request failed: ' + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = 'Generate PDF';
+      }
+    }
+
+    btn.addEventListener('click', generate);
+    emailEl.addEventListener('keydown', e => { if (e.key === 'Enter') generate(); });
+  </script>
+
+</body>
+</html>
