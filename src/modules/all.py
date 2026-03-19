@@ -12,6 +12,7 @@ from .sweden.retail.systembolaget import systembolaget
 from .sweden.retail.elgiganten import elgiganten
 from .sweden.retail.inet import inet
 from .sweden.community.byggahus import byggahus
+from .sweden.community.loveable import loveable
 from .sweden.political.mp import mp
 from .sweden.political.zetk import zetk
 from .sweden.political.liberalerna import liberalerna
@@ -59,6 +60,7 @@ def _modules(email: str):
         ("inet", inet),
         ("bytbil", bytbil),
         ("byggahus", byggahus),
+        ("lovable", loveable),
         ("tv4", tv4),
         ("Miljöpartiet", mp),
         ("zetk/Vänsterpartiet", zetk),

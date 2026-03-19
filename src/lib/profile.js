@@ -20,6 +20,7 @@ const PLATFORM_META = {
   inet:         { category: "Retail",      country: "SE", tag: "Electronics retailer" },
   bytbil:       { category: "Marketplace", country: "SE", tag: "Car marketplace" },
   byggahus:     { category: "Community",   country: "SE", tag: "Home improvement forum" },
+  loveable:     { category: "Community",   country: "SE", tag: "AI development platform" },
 
   "mail.ru": { category: "Email",        country: "RU", tag: "Russian email/social" },
   rambler:   { category: "Email",        country: "RU", tag: "Russian portal" },

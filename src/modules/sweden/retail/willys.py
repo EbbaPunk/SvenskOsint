@@ -54,7 +54,6 @@ def _encrypt(plaintext: str) -> tuple[str, str]:
 
 
 def willys(ssn: str) -> Dict[str, Any]:
-    """Check if a Swedish personnummer is registered at Willys."""
     result: Dict[str, Any] = {
         "accountExists": False,
         "raw": None,
