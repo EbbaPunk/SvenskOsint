@@ -1,6 +1,6 @@
 # SvenkOsint
 
-Egenhostad OSINT-verktyg. Mata in en e-postadress och få tillbaka en PDF med intrångsdata, kontokontroller mot 40+ tjänster och en automatiskt genererad beteendeprofil med yrkesroll, åldersuppskattning, livsstils- och inkomstsignaler.
+Egenhostad OSINT-verktyg. Mata in en e-postadress och få tillbaka en PDF med intrångsdata, kontokontroller mot 50+ tjänster och en automatiskt genererad beteendeprofil med yrkesroll, åldersuppskattning, livsstils- och inkomstsignaler.
 
 Node.js-server för UI och PDF-generering. Python-processer för plattformskontrollerna, körda parallellt.
 
@@ -50,9 +50,10 @@ npm start
 |---|---|
 | Media | Aftonbladet, Expressen, DN, DI, TV4, Samnytt, Omni |
 | Marknadsplatser | Blocket, Hemnet, Bytbil |
-| Handel | Willys, Systembolaget, Elgiganten, Inet, Komplett |
+| Handel | Willys, Systembolaget, Elgiganten, Inet, Komplett, 7-Eleven, Pressbyrån |
+| Matleverans | Foodora |
 | Politik | Liberalerna, Miljöpartiet, Vänsterpartiet |
-| Community | Byggahus, Lovable |
+| Community | Byggahus, Lovable, Svenska Jägarförbundet, Utsidan |
 
 ### Internationellt
 | | |
