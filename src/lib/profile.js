@@ -49,7 +49,6 @@ const PLATFORM_META = {
   freelancer:            { category: "Work",         country: "GLOBAL", tag: "Frilansmarknad" },
 };
 
-// ── Inference engine ───────────────────────────────────────────────────────────
 
 function _found(platforms, key) {
   const d = platforms?.[key];
@@ -289,7 +288,6 @@ function _buildNarrative(profile) {
   return parts.join(" ") || "Otillräcklig data för att bygga profil.";
 }
 
-// ── Main export ────────────────────────────────────────────────────────────────
 
 function buildProfile(platforms, summary, breaches) {
   const profile = {
@@ -314,14 +312,12 @@ function buildProfile(platforms, summary, breaches) {
     narrative:       "",
   };
 
-  // Extract names from platforms
   for (const data of Object.values(platforms || {})) {
     if (!data || typeof data !== "object") continue;
     const full = [data.firstName, data.lastName].filter(Boolean).join(" ");
     if (full && !profile.names.includes(full)) profile.names.push(full);
   }
 
-  // Core platform pass
   for (const [key, data] of Object.entries(platforms || {})) {
     if (!data || typeof data !== "object") continue;
     profile.totalChecked++;
@@ -343,7 +339,6 @@ function buildProfile(platforms, summary, breaches) {
     if (!profile.interests.includes(meta.category)) profile.interests.push(meta.category);
   }
 
-  // Political lean
   if (profile.political.length > 0) {
     const leans = profile.political.map(p => p.lean).filter(Boolean);
     if (leans.includes("far-left"))    profile.politicalLean = "Långt vänster";
@@ -351,7 +346,6 @@ function buildProfile(platforms, summary, breaches) {
     else if (leans.includes("center")) profile.politicalLean = "Center";
   }
 
-  // Media bias
   const altRight = profile.mediaOutlets.some(m => m.name === "samnytt");
   const leftTab  = profile.mediaOutlets.some(m => m.name === "aftonbladet");
   const business = profile.mediaOutlets.some(m => m.name === "di");
@@ -361,7 +355,6 @@ function buildProfile(platforms, summary, breaches) {
 
   profile.breachCount = Array.isArray(breaches) ? breaches.length : 0;
 
-  // Extended inference
   profile.occupation      = _inferOccupation(platforms);
   profile.ageEstimate     = _inferAge(platforms, breaches);
   profile.locationSignals = _inferLocation(platforms);
@@ -369,7 +362,6 @@ function buildProfile(platforms, summary, breaches) {
   profile.incomeSignal    = _inferIncomeSignal(platforms);
   profile.securityPosture = _inferSecurityPosture(platforms, breaches);
 
-  // Risk signals
   const ms = platforms?.["microsoft"];
   if (ms?.backupEmail)                               profile.riskSignals.push(`Microsoft backup-e-post: ${ms.backupEmail}`);
   if (ms?.twoFA === false && _found(platforms, "microsoft")) profile.riskSignals.push("Microsoft-konto saknar 2FA");
@@ -386,7 +378,6 @@ function buildProfile(platforms, summary, breaches) {
   if (_found(platforms, "Jägarförbundet") || _found(platforms, "Jägarförbundet/SSN"))
     profile.riskSignals.push("Registrerad jägare — trolig vapeninnehavare");
 
-  // Narrative summary
   profile.narrative = _buildNarrative(profile);
 
   return profile;
