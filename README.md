@@ -7,6 +7,8 @@ Kör en Node.js-server för UI och PDF-generering, och startar Python-processer 
 ---
 
 Äldre video från några dagar sen (pdf har ändrats drastiskt)
+
+
 https://github.com/user-attachments/assets/8b23aace-c876-48f7-ad1f-e36c046cacd4
 
 
