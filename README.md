@@ -1,8 +1,8 @@
 # SvenkOsint
 
-Egenhostad OSINT-verktyg. Mata in en e-postadress, få tillbaka en PDF med intrångsdata, kontokontroller mot 38 tjänster och en enkel beteendeprofil.
+Egenhostad OSINT-verktyg. Mata in en e-postadress och få tillbaka en PDF med intrångsdata, kontokontroller mot 40+ tjänster och en automatiskt genererad beteendeprofil med yrkesroll, åldersuppskattning, livsstils- och inkomstsignaler.
 
-Kör en Node.js-server för UI och PDF-generering, och startar Python-processer för plattformskontrollerna.
+Node.js-server för UI och PDF-generering. Python-processer för plattformskontrollerna, körda parallellt.
 
 ---
 
@@ -52,7 +52,7 @@ npm start
 | Marknadsplatser | Blocket, Hemnet, Bytbil |
 | Handel | Willys, Systembolaget, Elgiganten, Inet, Komplett |
 | Politik | Liberalerna, Miljöpartiet, Vänsterpartiet |
-| Community | Byggahus, Loveable |
+| Community | Byggahus, Lovable |
 
 ### Internationellt
 | | |
@@ -66,14 +66,14 @@ npm start
 
 ## Rapportens innehåll
 
-1. Sammanfattning - antal träffar, datumintervall, darknet- och lösenordsloggsträffar
-2. Profil - namnanalys, geografi, politiska och mediesignaler, riskvarningar
-3. Riskfördelning per allvarlighetsgrad
-4. Källkategorier
-5. Hotindikatorer
-6. Plattformsnärvaro (endast hittade konton, med detaljer)
-7. Breach.vip-träffar
-8. Rekommendationer
+1. **Sammanfattning** — antal träffar, datumintervall, darknet- och lösenordsloggsträffar
+2. **Profilanalys** — automatisk narrativ, yrkesroll med konfidensprocent, åldersuppskattning, platsindikationer, inkomstsignal, säkerhetsprofil, livsstil, media- och politiska signaler
+3. **Riskfördelning** — per allvarlighetsgrad (Critical → Info)
+4. **Källkategorier** — IntelX-träffar sorterade per källa
+5. **Hotindikatorer** — lösenord, API-nycklar, kreditkort m.m.
+6. **Plattformsnärvaro** — endast hittade konton visas, med detaljer (namn, login-datum, inloggningsmetod)
+7. **Breach.vip-träffar** — läckta lösenord och användardata
+8. **Rekommendationer** — åtgärdsförslag baserade på fynden
 
 ---
 
