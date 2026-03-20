@@ -3,7 +3,7 @@ from __future__ import annotations
 import re
 from typing import Any, Dict
 
-import httpcloak
+import requests
 
 
 def medal(email: str) -> Dict[str, Any]:
@@ -21,7 +21,7 @@ def medal(email: str) -> Dict[str, Any]:
     }
 
     try:
-        with httpcloak.Session(preset="chrome-144") as session:
+        with requests.Session() as session:
             r = session.get("https://medal.tv/login", headers=base_headers, timeout=5)
 
             mua_match = re.search(r'Medal-User-Agent["\s:]+["\']([^"\']+)', r.text)

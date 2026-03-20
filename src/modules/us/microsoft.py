@@ -3,7 +3,7 @@ from __future__ import annotations
 import typing
 from json import loads
 
-import httpcloak
+import requests
 
 
 def microsoft_recovery(target: str) -> dict[str, typing.Any]:
@@ -17,7 +17,7 @@ def microsoft_recovery(target: str) -> dict[str, typing.Any]:
     }
 
     try:
-        with httpcloak.Session(preset="safari-18") as session:
+        with requests.Session() as session:
             resp = session.get(
                 "https://account.live.com/ResetPassword.aspx",
                 params={"mn": target},

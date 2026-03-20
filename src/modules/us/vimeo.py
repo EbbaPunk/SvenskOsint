@@ -4,7 +4,7 @@ import re
 from bs4 import BeautifulSoup
 from typing import Dict, Any
 
-import httpcloak
+import requests
 
 _HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:140.0) Gecko/20100101 Firefox/140.0",
@@ -23,7 +23,7 @@ def vimeo(email: str) -> Dict[str, Any]:
     }
 
     try:
-        with httpcloak.Session(preset="firefox-133") as session:
+        with requests.Session() as session:
 
             try:
                 get_resp = session.get(

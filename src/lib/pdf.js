@@ -112,6 +112,26 @@ function buildPdf(summary, meta = {}) {
 
         fillRect(doc, 0, 64, PAGE_W, 2, rColor);
         contentStart = 82;
+
+        // ── Quick-stats bar ──
+        const statsY = contentStart + 10;
+        const statW  = CW / 4;
+        const stats  = [
+          { label: 'INTRÅNG',   value: String(meta.breaches?.length || 0) },
+          { label: 'PLATTFORMAR', value: String(Object.values(meta.platforms || {}).filter(p => p?.accountExists || p?.exists).length) },
+          { label: 'RISKNIVÅ',  value: rLabel || '—' },
+          { label: 'NAMN',      value: (meta.summary?.names?.[0] || meta.names?.[0] || '—').slice(0, 20) },
+        ];
+        fillRect(doc, GM, statsY, CW, 36, C.stripe);
+        stats.forEach(({ label, value }, i) => {
+          const x = GM + i * statW;
+          doc.fontSize(7).font('Helvetica').fillColor(C.muted)
+             .text(label, x + 8, statsY + 6, { lineBreak: false, width: statW - 10 });
+          doc.fontSize(11).font('Helvetica-Bold').fillColor(C.ink)
+             .text(value, x + 8, statsY + 16, { lineBreak: false, width: statW - 10 });
+        });
+        hRule(doc, GM, statsY + 36, CW);
+        contentStart = statsY + 46;
       } else {
         fillRect(doc, 0, 0, PAGE_W, 18, C.ink);
         fillRect(doc, 0, 18, PAGE_W, 1, rColor);
@@ -216,7 +236,7 @@ function buildPdf(summary, meta = {}) {
     // Occupation
     if (profile.occupation?.length > 0) {
       const top = profile.occupation.slice(0, 2);
-      profileRows.push(["Trolig yrkesroll", top.map(o => `${o.label} (${o.confidence}%)`).join("  /  ")]);
+      profileRows.push(["Trolig yrkesroll", top[0].label, top]);
     }
 
     // Income
@@ -267,13 +287,27 @@ function buildPdf(summary, meta = {}) {
       colHead(doc, GM + 176, prY + 4, "VÄRDE",    CW - 186);
       hRule(doc, GM, prY + ROW, CW);
 
-      profileRows.forEach(([label, value], i) => {
+      profileRows.forEach(([label, value, occupationData], i) => {
         const y = prY + ROW + i * ROW;
         if (i % 2 === 0) fillRect(doc, GM, y, CW, ROW, C.stripe);
         doc.fontSize(8.5).font("Helvetica").fillColor(C.muted)
            .text(label, GM + 8, y + 4, { lineBreak: false, width: 160 });
+        const labelX = GM + 176;
+        const valueWidth = Array.isArray(occupationData) && occupationData.length > 0 ? 120 : CW - 186;
         doc.fontSize(8.5).font("Helvetica-Bold").fillColor(C.body)
-           .text(value, GM + 176, y + 4, { lineBreak: false, width: CW - 186 });
+           .text(value, labelX, y + 4, { lineBreak: false, width: valueWidth });
+        if (Array.isArray(occupationData) && occupationData.length > 0) {
+          const barsStartX = labelX + 130;
+          occupationData.forEach((occ, oi) => {
+            const conf = typeof occ.confidence === "number" ? occ.confidence : 0;
+            const barW = Math.round((conf / 100) * 70);
+            const barX = barsStartX + oi * 100;
+            fillRect(doc, barX, y + 5, 70, 5, C.stripe);
+            if (barW > 0) fillRect(doc, barX, y + 5, barW, 5, rColor);
+            doc.fontSize(6.5).font("Helvetica").fillColor(C.muted)
+               .text(`${conf}%`, barX + 73, y + 4, { lineBreak: false });
+          });
+        }
       });
 
       hRule(doc, GM, prY, CW);

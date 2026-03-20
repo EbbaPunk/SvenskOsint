@@ -21,6 +21,12 @@ const PLATFORM_META = {
   komplett:              { category: "Retail",       country: "SE", tag: "Elektronikhandel" },
   byggahus:              { category: "Community",    country: "SE", tag: "Byggforum" },
   lovable:               { category: "Tech",         country: "SE", tag: "AI-plattform för webbutveckling" },
+  "Jägarförbundet":      { category: "Community",    country: "SE", tag: "Svenska Jägarförbundet — jakt & friluftsliv" },
+  "Jägarförbundet/SSN":  { category: "Community",    country: "SE", tag: "Svenska Jägarförbundet (personnummer)" },
+  utsidan:               { category: "Community",    country: "SE", tag: "Friluftsforum — vandring, jakt, fiske" },
+  "7-Eleven":            { category: "Retail",       country: "SE", tag: "Butikskedja / kvittoapp" },
+  "Pressbyrån":          { category: "Retail",       country: "SE", tag: "Butikskedja / kvittoapp" },
+  foodora:               { category: "Food",         country: "SE", tag: "Matleverans" },
   "mail.ru":             { category: "Email",        country: "RU", tag: "Rysk e-post / socialt" },
   rambler:               { category: "Email",        country: "RU", tag: "Ryskt webbportal" },
   deliveroo:             { category: "Food",         country: "UK", tag: "Matleverans (UK/EU)" },
@@ -28,7 +34,6 @@ const PLATFORM_META = {
   "archive.org":         { category: "Research",     country: "US", tag: "Digitalt arkiv" },
   bible:                 { category: "Religious",    country: "US", tag: "Bibel / religiöst innehåll" },
   bodybuilding:          { category: "Fitness",      country: "US", tag: "Träning / kosttillskott" },
-  devrant:               { category: "Tech",         country: "US", tag: "Utvecklarcommunity" },
   flickr:                { category: "Creative",     country: "US", tag: "Fotodelning" },
   insightly:             { category: "Business",     country: "US", tag: "CRM / affärsverktyg" },
   lastpass:              { category: "Security",     country: "US", tag: "Lösenordshanterare" },
@@ -37,7 +42,6 @@ const PLATFORM_META = {
   office365:             { category: "Software",     country: "US", tag: "Microsoft 365" },
   teamtreehouse:         { category: "Education",    country: "US", tag: "Kodutbildning" },
   vimeo:                 { category: "Creative",     country: "US", tag: "Videoplattform" },
-  vivino:                { category: "Lifestyle",    country: "US", tag: "Vin / restaurang" },
   lovense:               { category: "Adult",        country: "GLOBAL", tag: "Vuxen — intima enheter" },
   xvideos:               { category: "Adult",        country: "GLOBAL", tag: "Vuxeninnehåll" },
   plurk:                 { category: "Social",       country: "GLOBAL", tag: "Social mikroblogg" },
@@ -91,9 +95,9 @@ function _inferOccupation(platforms) {
     "Affärsprofil / Säljare":         0,
     "Hantverkare / Heminredning":     0,
     "Religiös / Konservativ profil":  0,
+    "Jakt / Friluftsliv":             0,
   };
 
-  if (_found(platforms, "devrant"))       scores["Mjukvaruutvecklare / Tech"]  += 3;
   if (_found(platforms, "teamtreehouse")) scores["Mjukvaruutvecklare / Tech"]  += 3;
   if (_found(platforms, "w3schools"))     scores["Mjukvaruutvecklare / Tech"]  += 2;
   if (_found(platforms, "lovable"))       scores["Mjukvaruutvecklare / Tech"]  += 2;
@@ -109,12 +113,16 @@ function _inferOccupation(platforms) {
   if (_found(platforms, "insightly"))     scores["Affärsprofil / Säljare"]     += 4;
   if (_found(platforms, "di"))            scores["Affärsprofil / Säljare"]     += 3;
   if (_found(platforms, "office365"))     scores["Affärsprofil / Säljare"]     += 2;
-  if (_found(platforms, "vivino"))        scores["Affärsprofil / Säljare"]     += 1;
   if (_found(platforms, "freelancer"))    scores["Affärsprofil / Säljare"]     += 1;
 
   if (_found(platforms, "byggahus"))      scores["Hantverkare / Heminredning"] += 4;
   if (_found(platforms, "hemnet"))        scores["Hantverkare / Heminredning"] += 2;
   if (_found(platforms, "elgiganten"))    scores["Hantverkare / Heminredning"] += 1;
+
+  if (!scores["Jakt / Friluftsliv"]) scores["Jakt / Friluftsliv"] = 0;
+  if (_found(platforms, "Jägarförbundet") || _found(platforms, "Jägarförbundet/SSN"))
+                                          scores["Jakt / Friluftsliv"] += 5;
+  if (_found(platforms, "utsidan"))       scores["Jakt / Friluftsliv"] += 3;
 
   if (_found(platforms, "bible"))         scores["Religiös / Konservativ profil"] += 4;
 
@@ -185,6 +193,8 @@ function _inferLocation(platforms) {
 
   if (_found(platforms, "deliveroo")) locations.push({ country: "UK / EU", confidence: 60, note: "Deliveroo-konto" });
   if (_anyFound(platforms, ["mail.ru", "rambler"])) locations.push({ country: "Ryssland / rysk koppling", confidence: 75, note: "Ryskt e-postkonto" });
+  const jagarFound = _found(platforms, "Jägarförbundet") || _found(platforms, "Jägarförbundet/SSN");
+  if (jagarFound) locations.push({ country: "Sverige (landsbygd / glesbygd möjlig)", confidence: 72, note: "Jägarförbundet-konto — sannolikt ruralt intresse" });
 
   return locations;
 }
@@ -192,13 +202,16 @@ function _inferLocation(platforms) {
 function _inferLifestyle(platforms) {
   const traits = [];
 
-  if (_found(platforms, "vivino"))      traits.push({ trait: "Vin- och matintresse",     confidence: 70 });
   if (_found(platforms, "bodybuilding"))traits.push({ trait: "Träning / fitness",         confidence: 75 });
   if (_found(platforms, "bible"))       traits.push({ trait: "Religiös livsstil",          confidence: 80 });
   if (_found(platforms, "medal"))       traits.push({ trait: "Aktiv spelare / gamer",     confidence: 75 });
   if (_found(platforms, "byggahus"))    traits.push({ trait: "Hem- och byggintresse",     confidence: 70 });
   if (_found(platforms, "hemnet"))      traits.push({ trait: "Bostadsintresse (köp/sälj)", confidence: 65 });
   if (_found(platforms, "bytbil"))      traits.push({ trait: "Bilintresse",               confidence: 60 });
+  if (_found(platforms, "Jägarförbundet") || _found(platforms, "Jägarförbundet/SSN"))
+                                        traits.push({ trait: "Jägare / skogsbruk",        confidence: 90 });
+  if (_found(platforms, "utsidan"))     traits.push({ trait: "Friluftsliv / natur",        confidence: 80 });
+  if (_found(platforms, "foodora"))     traits.push({ trait: "Urban livsstil",             confidence: 60 });
   if (_found(platforms, "plurk"))       traits.push({ trait: "Social medieanvändare",     confidence: 55 });
   if (_found(platforms, "flickr") || _found(platforms, "vimeo"))
                                         traits.push({ trait: "Kreativ / visuell",          confidence: 65 });
@@ -213,7 +226,6 @@ function _inferIncomeSignal(platforms) {
   const signals = [];
 
   if (_found(platforms, "di"))          { score += 3; signals.push("DI-prenumerant"); }
-  if (_found(platforms, "vivino"))      { score += 2; signals.push("Vivino-konto"); }
   if (_found(platforms, "insightly"))   { score += 2; signals.push("CRM-verktyg"); }
   if (_found(platforms, "adobe"))       { score += 2; signals.push("Adobe Creative Cloud"); }
   if (_found(platforms, "lastpass"))    { score += 1; signals.push("Lösenordshanterare"); }
@@ -371,6 +383,8 @@ function buildProfile(platforms, summary, breaches) {
     .filter(k => _found(platforms, k) && PLATFORM_META[k]?.category === "Adult");
   if (adultFound.length)              profile.riskSignals.push(`Vuxenplattformar: ${adultFound.join(", ")}`);
   if (profile.geography.includes("RU")) profile.riskSignals.push("Ryskt plattformsnärvaro (mail.ru / Rambler)");
+  if (_found(platforms, "Jägarförbundet") || _found(platforms, "Jägarförbundet/SSN"))
+    profile.riskSignals.push("Registrerad jägare — trolig vapeninnehavare");
 
   // Narrative summary
   profile.narrative = _buildNarrative(profile);

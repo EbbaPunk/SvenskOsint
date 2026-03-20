@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Dict, Any
 
-import httpcloak
+import requests
 
 
 def w3schools(email: str) -> Dict[str, Any]:
@@ -24,7 +24,7 @@ def w3schools(email: str) -> Dict[str, Any]:
     }
 
     try:
-        with httpcloak.Session(preset="chrome-144") as session:
+        with requests.Session() as session:
             response = session.post(
                 "https://profile.w3schools.com/api/info",
                 headers=headers,

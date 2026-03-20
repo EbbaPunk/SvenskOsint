@@ -3,7 +3,7 @@ from __future__ import annotations
 import random
 from typing import Dict, Any
 
-import httpcloak
+import requests
 
 
 def bodybuilding(email: str) -> Dict[str, Any]:
@@ -30,7 +30,7 @@ def bodybuilding(email: str) -> Dict[str, Any]:
     }
 
     try:
-        with httpcloak.Session(preset="chrome-144") as session:
+        with requests.Session() as session:
             r = session.head(
                 f"https://api.bodybuilding.com/profile/email/{email}",
                 headers=headers,

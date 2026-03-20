@@ -3,7 +3,7 @@ from __future__ import annotations
 from bs4 import BeautifulSoup
 from typing import Dict, Any
 
-import httpcloak
+import requests
 
 
 def teamtreehouse(email: str) -> Dict[str, Any]:
@@ -21,7 +21,7 @@ def teamtreehouse(email: str) -> Dict[str, Any]:
     }
 
     try:
-        with httpcloak.Session(preset="chrome-144") as session:
+        with requests.Session() as session:
             r = session.get(
                 "https://teamtreehouse.com/subscribe/new?trial=yes",
                 headers=headers,

@@ -72,4 +72,4 @@ def komplett(email: str) -> dict:
 if __name__ == "__main__":
     import sys
     email = sys.argv[1] if len(sys.argv) > 1 else input("Email: ").strip()
-    print(json.dumps(komplett(email), ensure_ascii=False, indent=2))
+    print(json.dumps(check(email), ensure_ascii=False, indent=2))

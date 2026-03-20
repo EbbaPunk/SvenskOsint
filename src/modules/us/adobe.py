@@ -3,7 +3,7 @@ from __future__ import annotations
 import random
 from typing import Any, Dict
 
-import httpcloak
+import requests
 
 CHROME_UAS = [
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
@@ -28,7 +28,7 @@ def adobe(email: str) -> Dict[str, Any]:
     }
 
     try:
-        r = httpcloak.post(
+        r = requests.post(
             "https://auth.services.adobe.com/signin/v1/authenticationstate",
             headers=headers,
             json={"username": email, "accountType": "individual"},
@@ -45,7 +45,7 @@ def adobe(email: str) -> Dict[str, Any]:
             "x-ims-authentication-state-encrypted"
         )
 
-        response = httpcloak.get(
+        response = requests.get(
             "https://auth.services.adobe.com/signin/v2/challenges",
             headers=headers,
             params={"purpose": "passwordRecovery"},

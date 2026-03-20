@@ -3,7 +3,7 @@ from __future__ import annotations
 import re
 from typing import Any, Dict
 
-import httpcloak
+import requests
 
 
 def lovense(email: str) -> Dict[str, Any]:
@@ -20,7 +20,7 @@ def lovense(email: str) -> Dict[str, Any]:
     signup_url = "https://www.lovense.com/signin?type=signUp"
 
     try:
-        with httpcloak.Session(preset="chrome-144") as session:
+        with requests.Session() as session:
             r = session.get(signup_url, headers=headers, timeout=5)
 
             m = re.search(r'crsf_token["\']?\s*[:=]\s*["\']([^"\']+)', r.text)

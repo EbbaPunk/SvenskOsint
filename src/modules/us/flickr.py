@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Dict, Any
 
-import httpcloak
+import requests
 
 
 def flickr(email: str) -> Dict[str, Any]:
@@ -21,7 +21,7 @@ def flickr(email: str) -> Dict[str, Any]:
     }
 
     try:
-        with httpcloak.Session(preset="chrome-144") as session:
+        with requests.Session() as session:
             r = session.get(
                 "https://identity-api.flickr.com/migration",
                 params={"email": email},

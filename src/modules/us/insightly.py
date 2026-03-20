@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Dict, Any
 
-import httpcloak
+import requests
 
 
 def insightly(email: str) -> Dict[str, Any]:
@@ -20,7 +20,7 @@ def insightly(email: str) -> Dict[str, Any]:
     }
 
     try:
-        with httpcloak.Session(preset="chrome-144") as session:
+        with requests.Session() as session:
             r = session.post(
                 "https://accounts.insightly.com/signup/isemailvalid",
                 headers=headers,

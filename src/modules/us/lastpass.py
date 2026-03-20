@@ -4,7 +4,7 @@ import random
 import string
 from typing import Dict, Any
 
-import httpcloak
+import requests
 
 
 def lastpass(email: str) -> Dict[str, Any]:
@@ -32,7 +32,7 @@ def lastpass(email: str) -> Dict[str, Any]:
     url = "https://lastpass.com/create_account.php"
 
     try:
-        with httpcloak.Session(preset="chrome-144") as session:
+        with requests.Session() as session:
             r = session.get(
                 url,
                 params={

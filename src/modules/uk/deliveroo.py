@@ -3,7 +3,7 @@ from __future__ import annotations
 import uuid
 from typing import Dict, Any
 
-import httpcloak
+import requests
 
 
 def deliveroo(email: str) -> Dict[str, Any]:
@@ -14,7 +14,7 @@ def deliveroo(email: str) -> Dict[str, Any]:
     }
 
     try:
-        with httpcloak.Session(preset="chrome-144") as session:
+        with requests.Session() as session:
             session.get(
                 "https://deliveroo.co.uk/",
                 headers={"User-Agent": "Mozilla/5.0", "Accept": "text/html"},

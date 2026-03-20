@@ -3,7 +3,7 @@ from __future__ import annotations
 import random
 from typing import Dict, Any
 
-import httpcloak
+import requests
 
 
 def freelancer(email: str) -> Dict[str, Any]:
@@ -30,7 +30,7 @@ def freelancer(email: str) -> Dict[str, Any]:
     }
 
     try:
-        with httpcloak.Session(preset="chrome-144") as session:
+        with requests.Session() as session:
             r = session.post(
                 "https://www.freelancer.com/api/users/0.1/users/check?compact=true&new_errors=true",
                 headers=headers,

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any, Dict
 
-import httpcloak
+import requests
 
 
 def bibledotcom(email: str) -> Dict[str, Any]:
@@ -12,7 +12,7 @@ def bibledotcom(email: str) -> Dict[str, Any]:
     }
 
     try:
-        r = httpcloak.post(
+        r = requests.post(
             "https://presentation.youversionapi.com/graphql",
             json={
                 "query": """

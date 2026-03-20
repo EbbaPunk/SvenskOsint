@@ -4,7 +4,7 @@ import random
 import string
 from typing import Dict, Any
 
-import httpcloak
+import requests
 
 
 def random_username(length=10):
@@ -38,7 +38,7 @@ def devrant(email: str) -> Dict[str, Any]:
     }
 
     try:
-        with httpcloak.Session(preset="chrome-144") as session:
+        with requests.Session() as session:
             r = session.post(
                 "https://devrant.com/api/users",
                 headers=headers,

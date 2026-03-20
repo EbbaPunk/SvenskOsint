@@ -3,7 +3,7 @@ from __future__ import annotations
 import random
 from typing import Dict, Any
 
-import httpcloak
+import requests
 
 
 def plurk(email: str) -> Dict[str, Any]:
@@ -31,7 +31,7 @@ def plurk(email: str) -> Dict[str, Any]:
     }
 
     try:
-        with httpcloak.Session(preset="chrome-144") as session:
+        with requests.Session() as session:
             r = session.post(
                 "https://www.plurk.com/Users/isEmailFound",
                 headers=headers,
