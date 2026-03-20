@@ -178,48 +178,93 @@ function buildPdf(summary, meta = {}) {
 
     const profile = buildProfile(meta.platforms, summary, meta.breaches);
 
-    sectionHeader("2  ·  PROFILE ANALYSIS");
+    sectionHeader("2  ·  PROFILANALYS");
 
+    // ── Narrative ──────────────────────────────────────────────────────────────
+    if (profile.narrative) {
+      ensureSpace(36);
+      fillRect(doc, GM, doc.y, CW, 2, C.rule);
+      doc.moveDown(0.3);
+      doc.fontSize(8.5).font("Helvetica").fillColor(C.body)
+         .text(profile.narrative, GM + 8, doc.y + 4, { width: CW - 16, lineBreak: true });
+      doc.moveDown(1.2);
+    }
+
+    // ── Main attribute table ───────────────────────────────────────────────────
     const profileRows = [];
 
     if (profile.names.length > 0) {
-      profileRows.push(["Name(s) Found", profile.names.join(", ")]);
+      profileRows.push(["Identifierat namn", profile.names.join(", ")]);
     }
 
-    const countryMap = { SE: "Sweden", RU: "Russia", UK: "United Kingdom", US: "United States", GLOBAL: "Global" };
-    if (profile.geography.length > 0) {
-      const geo     = profile.geography.map(c => countryMap[c] || c);
-      const primary = profile.swedishSignals >= 2 ? "Sweden (strong signal)" : geo.join(", ");
-      profileRows.push(["Geographic Signal", primary]);
+    // Location
+    if (profile.locationSignals.length > 0) {
+      const best = profile.locationSignals.sort((a, b) => b.confidence - a.confidence)[0];
+      profileRows.push(["Geografisk signal", `${best.country}  (${best.confidence}% konfidens)`]);
+    } else if (profile.geography.length > 0) {
+      const countryMap = { SE: "Sverige", RU: "Ryssland", UK: "Storbrittannien", US: "USA", GLOBAL: "Globalt" };
+      profileRows.push(["Geografisk signal", profile.geography.map(c => countryMap[c] || c).join(", ")]);
     }
 
+    // Age
+    if (profile.ageEstimate) {
+      const { minAge, maxAge } = profile.ageEstimate;
+      const range = maxAge >= 85 ? `${minAge}+` : `${minAge}–${maxAge}`;
+      profileRows.push(["Åldersuppskattning", range]);
+    }
+
+    // Occupation
+    if (profile.occupation?.length > 0) {
+      const top = profile.occupation.slice(0, 2);
+      profileRows.push(["Trolig yrkesroll", top.map(o => `${o.label} (${o.confidence}%)`).join("  /  ")]);
+    }
+
+    // Income
+    if (profile.incomeSignal && profile.incomeSignal.level !== "Okänd") {
+      profileRows.push(["Inkomstsignal", `${profile.incomeSignal.level}  —  ${profile.incomeSignal.signals.join(", ")}`]);
+    }
+
+    // Security
+    if (profile.securityPosture) {
+      const sp = profile.securityPosture;
+      profileRows.push(["Säkerhetsprofil", `${sp.label}  (${sp.score}/100)  —  ${sp.notes[0] || ""}`]);
+    }
+
+    // Political
     if (profile.political.length > 0) {
-      profileRows.push(["Political Parties", profile.political.map(p => p.tag).join(", ")]);
-      if (profile.politicalLean) profileRows.push(["Political Lean", profile.politicalLean]);
+      profileRows.push(["Politiska partier", profile.political.map(p => p.tag).join(", ")]);
+      if (profile.politicalLean) profileRows.push(["Politisk lutning", profile.politicalLean]);
     }
 
+    // Media
     if (profile.mediaOutlets.length > 0) {
-      profileRows.push(["Media Consumption", profile.mediaOutlets.map(m => m.name).join(", ")]);
-      if (profile.mediaBias) profileRows.push(["Media Bias Signal", profile.mediaBias]);
+      profileRows.push(["Mediekonsumtion", profile.mediaOutlets.map(m => m.name).join(", ")]);
+      if (profile.mediaBias) profileRows.push(["Mediabias-signal", profile.mediaBias]);
     }
 
-    const skipCats   = new Set(["Political", "Media", "Adult"]);
-    const interests  = profile.interests.filter(c => !skipCats.has(c));
+    // Lifestyle
+    if (profile.lifestyle.length > 0) {
+      profileRows.push(["Livsstilssignaler", profile.lifestyle.map(l => l.trait).join(", ")]);
+    }
+
+    // Interests
+    const skipCats = new Set(["Political", "Media", "Adult", "Software"]);
+    const interests = profile.interests.filter(c => !skipCats.has(c));
     if (interests.length > 0) {
-      profileRows.push(["Platform Categories", interests.join(", ")]);
+      profileRows.push(["Plattformskategorier", interests.join(", ")]);
     }
 
-    profileRows.push(["Digital Footprint", `${profile.totalFound} of ${profile.totalChecked} platforms checked`]);
+    profileRows.push(["Digitalt fotavtryck", `${profile.totalFound} av ${profile.totalChecked} plattformar hittade`]);
 
     if (profileRows.length === 0) {
       doc.fontSize(8.5).font("Helvetica").fillColor(C.muted)
-         .text("Insufficient data to build profile.", GM + 8, doc.y);
+         .text("Otillräcklig data för att bygga profil.", GM + 8, doc.y);
       doc.moveDown(1);
     } else {
       ensureSpace(ROW + profileRows.length * ROW + 10);
       const prY = doc.y;
-      colHead(doc, GM + 8,   prY + 4, "ATTRIBUTE", 160);
-      colHead(doc, GM + 176, prY + 4, "VALUE",     CW - 186);
+      colHead(doc, GM + 8,   prY + 4, "ATTRIBUT", 160);
+      colHead(doc, GM + 176, prY + 4, "VÄRDE",    CW - 186);
       hRule(doc, GM, prY + ROW, CW);
 
       profileRows.forEach(([label, value], i) => {
@@ -236,10 +281,41 @@ function buildPdf(summary, meta = {}) {
       doc.y = prY + ROW + profileRows.length * ROW + 10;
     }
 
+    // ── Location detail sub-table ──────────────────────────────────────────────
+    if (profile.locationSignals.length > 1) {
+      ensureSpace(12 + profile.locationSignals.length * 13);
+      doc.fontSize(7.5).font("Helvetica-Bold").fillColor(C.ink)
+         .text("Platsindikationer", GM + 8, doc.y);
+      doc.moveDown(0.3);
+      profile.locationSignals.forEach(loc => {
+        ensureSpace(13);
+        doc.fontSize(7.5).font("Helvetica").fillColor(C.muted)
+           .text(`${loc.country}  —  ${loc.note}  (${loc.confidence}%)`, GM + 16, doc.y, { lineBreak: false, width: CW - 24 });
+        doc.moveDown(0.85);
+      });
+      doc.moveDown(0.4);
+    }
+
+    // ── Age inference detail ───────────────────────────────────────────────────
+    if (profile.ageEstimate?.signals?.length > 0) {
+      ensureSpace(12 + profile.ageEstimate.signals.length * 13);
+      doc.fontSize(7.5).font("Helvetica-Bold").fillColor(C.ink)
+         .text("Åldersindikationer", GM + 8, doc.y);
+      doc.moveDown(0.3);
+      profile.ageEstimate.signals.forEach(s => {
+        ensureSpace(13);
+        doc.fontSize(7.5).font("Helvetica").fillColor(C.muted)
+           .text(`${s.note}  (${s.weight}%)`, GM + 16, doc.y, { lineBreak: false, width: CW - 24 });
+        doc.moveDown(0.85);
+      });
+      doc.moveDown(0.4);
+    }
+
+    // ── Risk signals ───────────────────────────────────────────────────────────
     if (profile.riskSignals.length > 0) {
       ensureSpace(12 + profile.riskSignals.length * 14);
       doc.fontSize(7.5).font("Helvetica-Bold").fillColor(C.ink)
-         .text("Risk Signals", GM + 8, doc.y);
+         .text("Risksignaler", GM + 8, doc.y);
       doc.moveDown(0.3);
       profile.riskSignals.forEach(sig => {
         ensureSpace(14);
