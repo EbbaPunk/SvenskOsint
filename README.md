@@ -50,7 +50,7 @@ npm start
 |---|---|
 | Media | Aftonbladet, Expressen, DN, DI, TV4, Samnytt, Omni |
 | Marknadsplatser | Blocket, Hemnet, Bytbil |
-| Handel | Willys, Systembolaget, Elgiganten, Inet |
+| Handel | Willys, Systembolaget, Elgiganten, Inet, Komplett |
 | Politik | Liberalerna, Miljöpartiet, Vänsterpartiet |
 | Community | Byggahus, Loveable |
 
