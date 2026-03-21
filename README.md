@@ -48,9 +48,9 @@ npm start
 ### Sverige
 | Kategori | |
 |---|---|
-| Media | Aftonbladet, Expressen, DN, DI, TV4, Samnytt, Omni |
+| Media | Aftonbladet, Expressen, DN, DI, SvD, TV4, Samnytt, Omni |
 | Marknadsplatser | Blocket, Hemnet, Bytbil |
-| Handel | Willys, Systembolaget, Elgiganten, Inet, Komplett, 7-Eleven, Pressbyrån |
+| Handel | Willys, Systembolaget, Elgiganten, Inet, Komplett, Power, 7-Eleven, Pressbyrån |
 | Matleverans | Foodora |
 | Politik | Liberalerna, Miljöpartiet, Vänsterpartiet |
 | Community | Byggahus, Lovable, Svenska Jägarförbundet, Utsidan |
@@ -58,7 +58,7 @@ npm start
 ### Internationellt
 | | |
 |---|---|
-| USA | Adobe, Archive.org, Bible.com, Bodybuilding, DevRant, Flickr, Insightly, LastPass, Medal, Microsoft, Office365, TeamTreehouse, Vimeo, Vivino |
+| USA | Adobe, Archive.org, Bible.com, Bodybuilding, Flickr, Insightly, LastPass, Medal, Microsoft, Office365, TeamTreehouse, Vimeo |
 | Ryssland | Mail.ru, Rambler |
 | Storbritannien | Deliveroo |
 | Globalt | Lovense, xVideos, Plurk, W3Schools, Freelancer |
@@ -85,7 +85,7 @@ npm start
 | E-post | Obligatoriskt |
 | Namn | Förbättrar sökprecisionen |
 | Telefon / Användarnamn | Visas i rapporthuvudet |
-| Personnummer | Används för Willys-kontroll |
+| Personnummer | Används för Willys- och Jägarförbundet-kontroll |
 
 ---
 

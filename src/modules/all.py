@@ -8,6 +8,7 @@ from .sweden.media.dn import dn
 from .sweden.media.di import di
 from .sweden.media.tv4 import tv4
 from .sweden.media.omni import omni
+from .sweden.media.svd import svd
 
 # Marketplace
 from .sweden.marketplace.blocket import blocket
@@ -23,6 +24,7 @@ from .sweden.retail.komplett import komplett
 from .sweden.retail.seven_eleven import seven_eleven
 from .sweden.retail.pressbyran import pressbyran
 from .sweden.retail.foodora import foodora
+from .sweden.retail.power import power
 
 # Community
 from .sweden.community.byggahus import byggahus
@@ -111,10 +113,12 @@ def _modules():
         ("w3schools", w3schools),
         ("freelancer", freelancer),
         ("omni", omni),
+        ("svd", svd),
         ("komplett", komplett),
         ("7-Eleven", seven_eleven),
         ("Pressbyrån", pressbyran),
         ("foodora", foodora),
+        ("power", power),
     ]
 
 

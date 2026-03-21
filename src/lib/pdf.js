@@ -233,7 +233,13 @@ function buildPdf(summary, meta = {}) {
       profileRows.push(["Åldersuppskattning", range]);
     }
 
-    // Occupation
+    // Urban / rural
+    if (profile.urbanRural) {
+      const ur = profile.urbanRural;
+      profileRows.push(["Urban / rural", `${ur.label}  (${ur.confidence}% konfidens)`]);
+    }
+
+    // Occupation — only show top label in text, bars handle the rest
     if (profile.occupation?.length > 0) {
       const top = profile.occupation.slice(0, 2);
       profileRows.push(["Trolig yrkesroll", top[0].label, top]);
