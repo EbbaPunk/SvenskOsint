@@ -226,6 +226,11 @@ function buildPdf(summary, meta = {}) {
       profileRows.push(["Geografisk signal", profile.geography.map(c => countryMap[c] || c).join(", ")]);
     }
 
+    // Gender
+    if (profile.genderSignal && profile.genderSignal.confidence >= 60) {
+      profileRows.push(["Könssignal", `${profile.genderSignal.gender}  (${profile.genderSignal.confidence}% konfidens)`]);
+    }
+
     // Age
     if (profile.ageEstimate) {
       const { minAge, maxAge } = profile.ageEstimate;

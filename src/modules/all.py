@@ -25,12 +25,15 @@ from .sweden.retail.seven_eleven import seven_eleven
 from .sweden.retail.pressbyran import pressbyran
 from .sweden.retail.foodora import foodora
 from .sweden.retail.power import power
+from .sweden.retail.nelly import nelly
+from .sweden.retail.cocopanda import cocopanda
 
 # Community
 from .sweden.community.byggahus import byggahus
 from .sweden.community.loveable import loveable
 from .sweden.community.jagareforbundet import jagareforbundet
 from .sweden.community.utsidan import utsidan
+from .sweden.community.allsvenskan import allsvenskan
 
 #Politik
 from .sweden.political.mp import mp
@@ -88,6 +91,7 @@ def _modules():
         ("Jägarförbundet", jagareforbundet),
         ("Jägarförbundet/SSN", jagareforbundet),
         ("utsidan", utsidan),
+        ("allsvenskan", allsvenskan),
         ("tv4", tv4),
         ("Miljöpartiet", mp),
         ("zetk/Vänsterpartiet", zetk),
@@ -119,6 +123,8 @@ def _modules():
         ("Pressbyrån", pressbyran),
         ("foodora", foodora),
         ("power", power),
+        ("nelly", nelly),
+        ("cocopanda", cocopanda),
     ]
 
 

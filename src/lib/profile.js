@@ -5,10 +5,10 @@ const PLATFORM_META = {
   expressen:             { category: "Media",        country: "SE", tag: "Kvällstidning / liberal" },
   dn:                    { category: "Media",        country: "SE", tag: "Dagstidning / center-liberal" },
   di:                    { category: "Media",        country: "SE", tag: "Affärspress" },
+  svd:                   { category: "Media",        country: "SE", tag: "Dagstidning / konservativ-liberal" },
   tv4:                   { category: "Media",        country: "SE", tag: "Kommersiell TV" },
   samnytt:               { category: "Media",        country: "SE", tag: "Alternativmedia / nationalistisk" },
   omni:                  { category: "Media",        country: "SE", tag: "Nyhetsaggregator / centrisk" },
-  svd:                   { category: "Media",        country: "SE", tag: "Dagstidning / konservativ-liberal" },
   "Liberalerna":         { category: "Political",    country: "SE", tag: "Center-liberal",          lean: "center"   },
   "Miljöpartiet":        { category: "Political",    country: "SE", tag: "Grön / ekologisk",        lean: "left"     },
   "zetk/Vänsterpartiet": { category: "Political",    country: "SE", tag: "Socialistisk vänster",    lean: "far-left" },
@@ -21,14 +21,17 @@ const PLATFORM_META = {
   inet:                  { category: "Retail",       country: "SE", tag: "Elektronikhandel" },
   komplett:              { category: "Retail",       country: "SE", tag: "Elektronikhandel" },
   power:                 { category: "Retail",       country: "SE", tag: "Elektronikhandel" },
-  byggahus:              { category: "Community",    country: "SE", tag: "Byggforum" },
-  lovable:               { category: "Tech",         country: "SE", tag: "AI-plattform för webbutveckling" },
-  "Jägarförbundet":      { category: "Community",    country: "SE", tag: "Svenska Jägarförbundet — jakt & friluftsliv" },
-  "Jägarförbundet/SSN":  { category: "Community",    country: "SE", tag: "Svenska Jägarförbundet (personnummer)" },
-  utsidan:               { category: "Community",    country: "SE", tag: "Friluftsforum — vandring, jakt, fiske" },
+  nelly:                 { category: "Retail",       country: "SE", tag: "Modehandel (kvinna)" },
+  cocopanda:             { category: "Retail",       country: "SE", tag: "Skönhet / kosmetika" },
   "7-Eleven":            { category: "Retail",       country: "SE", tag: "Butikskedja / kvittoapp" },
   "Pressbyrån":          { category: "Retail",       country: "SE", tag: "Butikskedja / kvittoapp" },
   foodora:               { category: "Food",         country: "SE", tag: "Matleverans" },
+  byggahus:              { category: "Community",    country: "SE", tag: "Byggforum" },
+  lovable:               { category: "Tech",         country: "SE", tag: "AI-plattform för webbutveckling" },
+  "Jägarförbundet":      { category: "Community",    country: "SE", tag: "Jakt & friluftsliv" },
+  "Jägarförbundet/SSN":  { category: "Community",    country: "SE", tag: "Jakt & friluftsliv (personnummer)" },
+  utsidan:               { category: "Community",    country: "SE", tag: "Friluftsforum — vandring, jakt, fiske" },
+  allsvenskan:           { category: "Sports",       country: "SE", tag: "Svensk fotboll" },
   "mail.ru":             { category: "Email",        country: "RU", tag: "Rysk e-post / socialt" },
   rambler:               { category: "Email",        country: "RU", tag: "Ryskt webbportal" },
   deliveroo:             { category: "Food",         country: "UK", tag: "Matleverans (UK/EU)" },
@@ -51,14 +54,15 @@ const PLATFORM_META = {
   freelancer:            { category: "Work",         country: "GLOBAL", tag: "Frilansmarknad" },
 };
 
-// Max possible scores per occupation category (for confidence normalization)
 const OCCUPATION_MAX = {
-  "Mjukvaruutvecklare / Tech":      11,
-  "Kreativ / Designer":             8,
+  "Mjukvaruutvecklare / Tech":      12,
+  "Kreativ / Designer":              9,
   "Affärsprofil / Säljare":         10,
-  "Hantverkare / Heminredning":     7,
-  "Religiös / Konservativ profil":  4,
-  "Jakt / Friluftsliv":             8,
+  "Hantverkare / Heminredning":      7,
+  "Religiös / Konservativ profil":   4,
+  "Jakt / Friluftsliv":              8,
+  "Mode / Skönhet":                  5,
+  "Sport / Idrott":                  4,
 };
 
 function _found(platforms, key) {
@@ -105,6 +109,8 @@ function _inferOccupation(platforms) {
     "Hantverkare / Heminredning":     0,
     "Religiös / Konservativ profil":  0,
     "Jakt / Friluftsliv":             0,
+    "Mode / Skönhet":                 0,
+    "Sport / Idrott":                 0,
   };
 
   if (_found(platforms, "teamtreehouse")) scores["Mjukvaruutvecklare / Tech"] += 3;
@@ -120,6 +126,7 @@ function _inferOccupation(platforms) {
   if (_found(platforms, "flickr"))        scores["Kreativ / Designer"]        += 2;
   if (_found(platforms, "vimeo"))         scores["Kreativ / Designer"]        += 2;
   if (_found(platforms, "freelancer"))    scores["Kreativ / Designer"]        += 1;
+  if (_found(platforms, "nelly"))         scores["Kreativ / Designer"]        += 1;
 
   if (_found(platforms, "insightly"))     scores["Affärsprofil / Säljare"]    += 4;
   if (_found(platforms, "di"))            scores["Affärsprofil / Säljare"]    += 3;
@@ -136,6 +143,12 @@ function _inferOccupation(platforms) {
 
   if (_found(platforms, "bible"))         scores["Religiös / Konservativ profil"] += 4;
 
+  if (_found(platforms, "nelly"))         scores["Mode / Skönhet"]            += 3;
+  if (_found(platforms, "cocopanda"))     scores["Mode / Skönhet"]            += 2;
+
+  if (_found(platforms, "allsvenskan"))   scores["Sport / Idrott"]            += 3;
+  if (_found(platforms, "bodybuilding"))  scores["Sport / Idrott"]            += 1;
+
   const top = Object.entries(scores).sort((a, b) => b[1] - a[1]);
   if (top[0][1] === 0) return null;
 
@@ -148,6 +161,32 @@ function _inferOccupation(platforms) {
     }));
 }
 
+function _inferGender(platforms) {
+  let femaleScore = 0;
+  let maleScore   = 0;
+  const signals   = [];
+
+  if (_found(platforms, "nelly"))         { femaleScore += 4; signals.push({ s: "nelly", g: "F" }); }
+  if (_found(platforms, "cocopanda"))     { femaleScore += 3; signals.push({ s: "cocopanda", g: "F" }); }
+  if (_found(platforms, "bodybuilding"))  { maleScore   += 2; signals.push({ s: "bodybuilding", g: "M" }); }
+  if (_found(platforms, "allsvenskan"))   { maleScore   += 2; signals.push({ s: "allsvenskan", g: "M" }); }
+  if (_found(platforms, "Jägarförbundet") || _found(platforms, "Jägarförbundet/SSN"))
+                                          { maleScore   += 2; signals.push({ s: "jägarförbundet", g: "M" }); }
+  if (_found(platforms, "medal"))         { maleScore   += 2; signals.push({ s: "medal", g: "M" }); }
+  if (_found(platforms, "bytbil"))        { maleScore   += 1; signals.push({ s: "bytbil", g: "M" }); }
+  if (_found(platforms, "hemnet"))        { femaleScore += 1; maleScore += 1; }
+
+  const total = femaleScore + maleScore;
+  if (total === 0) return null;
+
+  if (femaleScore > maleScore) {
+    return { gender: "Kvinna", confidence: Math.min(92, Math.round((femaleScore / total) * 100)), signals };
+  } else if (maleScore > femaleScore) {
+    return { gender: "Man", confidence: Math.min(92, Math.round((maleScore / total) * 100)), signals };
+  }
+  return { gender: "Okänt", confidence: 50, signals };
+}
+
 function _inferAge(platforms, breaches) {
   const signals = [];
   let minAge = 13;
@@ -158,10 +197,12 @@ function _inferAge(platforms, breaches) {
     if (method === "bankid") signals.push({ note: "BankID verifierad — myndig svensk person", weight: 95 });
     minAge = Math.max(minAge, 20);
   }
-  if (_found(platforms, "willys"))  { minAge = Math.max(minAge, 18); }
-  if (_found(platforms, "hemnet"))  { minAge = Math.max(minAge, 22); signals.push({ note: "Bostadsintresse tyder på vuxen (22+)", weight: 60 }); }
-  if (_found(platforms, "bytbil"))  { minAge = Math.max(minAge, 18); signals.push({ note: "Bilsökning — körkortsålder (18+)", weight: 70 }); }
-  if (_found(platforms, "blocket")) { minAge = Math.max(minAge, 16); }
+  if (_found(platforms, "willys"))      { minAge = Math.max(minAge, 18); }
+  if (_found(platforms, "hemnet"))      { minAge = Math.max(minAge, 22); signals.push({ note: "Bostadsintresse tyder på vuxen (22+)", weight: 60 }); }
+  if (_found(platforms, "bytbil"))      { minAge = Math.max(minAge, 18); signals.push({ note: "Bilsökning — körkortsålder (18+)", weight: 70 }); }
+  if (_found(platforms, "blocket"))     { minAge = Math.max(minAge, 16); }
+  if (_found(platforms, "allsvenskan")) { minAge = Math.max(minAge, 15); signals.push({ note: "Allsvenskan-konto — trolig fotbollsintresserad vuxen", weight: 45 }); }
+  if (_found(platforms, "nelly"))       { minAge = Math.max(minAge, 18); maxAge = Math.min(maxAge, 50); signals.push({ note: "Nelly-konto — trolig ung kvinna (18–50)", weight: 55 }); }
 
   if (_found(platforms, "insightly") || _found(platforms, "di")) {
     minAge = Math.max(minAge, 23);
@@ -203,15 +244,15 @@ function _inferLocation(platforms) {
   const seCount = Object.keys(PLATFORM_META)
     .filter(k => PLATFORM_META[k].country === "SE" && _found(platforms, k)).length;
 
-  if (seCount >= 3) locations.push({ country: "Sverige", confidence: Math.min(95, 50 + seCount * 8), note: `${seCount} svenska plattformar funna` });
+  if (seCount >= 3) locations.push({ country: "Sverige", confidence: Math.min(95, 50 + seCount * 7), note: `${seCount} svenska plattformar funna` });
 
   const bankid = platforms?.["systembolaget"]?.method === "bankid" && _found(platforms, "systembolaget");
   if (bankid) locations.push({ country: "Sverige (bekräftat)", confidence: 98, note: "BankID-inloggning = folkbokförd i Sverige" });
 
-  if (_found(platforms, "deliveroo")) locations.push({ country: "UK / EU", confidence: 60, note: "Deliveroo-konto" });
+  if (_found(platforms, "deliveroo"))   locations.push({ country: "UK / EU", confidence: 60, note: "Deliveroo-konto" });
   if (_anyFound(platforms, ["mail.ru", "rambler"])) locations.push({ country: "Ryssland / rysk koppling", confidence: 75, note: "Ryskt e-postkonto" });
   if (_found(platforms, "Jägarförbundet") || _found(platforms, "Jägarförbundet/SSN"))
-    locations.push({ country: "Sverige (landsbygd / glesbygd möjlig)", confidence: 72, note: "Jägarförbundet-konto — sannolikt ruralt intresse" });
+    locations.push({ country: "Sverige (landsbygd / glesbygd möjlig)", confidence: 72, note: "Jägarförbundet — sannolikt ruralt intresse" });
 
   return locations;
 }
@@ -226,12 +267,15 @@ function _inferUrbanRural(platforms) {
   if (_found(platforms, "7-Eleven"))    { urbanScore += 2; urbanSignals.push("7-Eleven"); }
   if (_found(platforms, "Pressbyrån"))  { urbanScore += 2; urbanSignals.push("Pressbyrån"); }
   if (_found(platforms, "deliveroo"))   { urbanScore += 2; urbanSignals.push("Deliveroo"); }
+  if (_found(platforms, "allsvenskan")) { urbanScore += 1; urbanSignals.push("Allsvenskan"); }
   if (_found(platforms, "hemnet"))      { urbanScore += 1; urbanSignals.push("Hemnet"); }
+  if (_found(platforms, "nelly"))       { urbanScore += 1; urbanSignals.push("Nelly"); }
 
   if (_found(platforms, "Jägarförbundet") || _found(platforms, "Jägarförbundet/SSN"))
                                         { ruralScore += 4; ruralSignals.push("Jägarförbundet"); }
   if (_found(platforms, "utsidan"))     { ruralScore += 3; ruralSignals.push("Utsidan"); }
   if (_found(platforms, "byggahus"))    { ruralScore += 1; ruralSignals.push("Byggahus"); }
+  if (_found(platforms, "bytbil"))      { ruralScore += 1; ruralSignals.push("Bytbil"); }
 
   if (urbanScore === 0 && ruralScore === 0) return null;
 
@@ -247,22 +291,25 @@ function _inferUrbanRural(platforms) {
 function _inferLifestyle(platforms) {
   const traits = [];
 
-  if (_found(platforms, "bodybuilding"))  traits.push({ trait: "Träning / fitness",          confidence: 75 });
-  if (_found(platforms, "bible"))         traits.push({ trait: "Religiös livsstil",           confidence: 80 });
-  if (_found(platforms, "medal"))         traits.push({ trait: "Aktiv spelare / gamer",      confidence: 75 });
-  if (_found(platforms, "byggahus"))      traits.push({ trait: "Hem- och byggintresse",      confidence: 70 });
-  if (_found(platforms, "hemnet"))        traits.push({ trait: "Bostadsintresse (köp/sälj)", confidence: 65 });
-  if (_found(platforms, "bytbil"))        traits.push({ trait: "Bilintresse",                confidence: 60 });
+  if (_found(platforms, "bodybuilding"))  traits.push({ trait: "Träning / fitness",            confidence: 75 });
+  if (_found(platforms, "bible"))         traits.push({ trait: "Religiös livsstil",             confidence: 80 });
+  if (_found(platforms, "medal"))         traits.push({ trait: "Aktiv spelare / gamer",         confidence: 75 });
+  if (_found(platforms, "byggahus"))      traits.push({ trait: "Hem- och byggintresse",         confidence: 70 });
+  if (_found(platforms, "hemnet"))        traits.push({ trait: "Bostadsintresse (köp/sälj)",   confidence: 65 });
+  if (_found(platforms, "bytbil"))        traits.push({ trait: "Bilintresse",                   confidence: 60 });
+  if (_found(platforms, "allsvenskan"))   traits.push({ trait: "Fotbollsintresserad",           confidence: 78 });
+  if (_found(platforms, "nelly"))         traits.push({ trait: "Modeintresse",                  confidence: 72 });
+  if (_found(platforms, "cocopanda"))     traits.push({ trait: "Skönhet / kosmetika",           confidence: 75 });
   if (_found(platforms, "Jägarförbundet") || _found(platforms, "Jägarförbundet/SSN"))
-                                          traits.push({ trait: "Jägare / skogsbruk",         confidence: 90 });
-  if (_found(platforms, "utsidan"))       traits.push({ trait: "Friluftsliv / natur",         confidence: 80 });
+                                          traits.push({ trait: "Jägare / skogsbruk",            confidence: 90 });
+  if (_found(platforms, "utsidan"))       traits.push({ trait: "Friluftsliv / natur",           confidence: 80 });
   if (_found(platforms, "foodora") || _found(platforms, "7-Eleven") || _found(platforms, "Pressbyrån"))
-                                          traits.push({ trait: "Urban livsstil",              confidence: 65 });
-  if (_found(platforms, "plurk"))         traits.push({ trait: "Social medieanvändare",      confidence: 55 });
+                                          traits.push({ trait: "Urban livsstil",                confidence: 65 });
+  if (_found(platforms, "plurk"))         traits.push({ trait: "Social medieanvändare",         confidence: 55 });
   if (_found(platforms, "flickr") || _found(platforms, "vimeo"))
-                                          traits.push({ trait: "Kreativ / visuell",           confidence: 65 });
+                                          traits.push({ trait: "Kreativ / visuell",             confidence: 65 });
   if (_anyFound(platforms, ["lovense", "xvideos"]))
-                                          traits.push({ trait: "Vuxeninnehållskonsument",    confidence: 85 });
+                                          traits.push({ trait: "Vuxeninnehållskonsument",       confidence: 85 });
 
   return traits;
 }
@@ -272,17 +319,33 @@ function _inferIncomeSignal(platforms) {
   const signals = [];
 
   if (_found(platforms, "di"))          { score += 3; signals.push("DI-prenumerant"); }
+  if (_found(platforms, "svd"))         { score += 2; signals.push("SvD-prenumerant"); }
   if (_found(platforms, "insightly"))   { score += 2; signals.push("CRM-verktyg"); }
   if (_found(platforms, "adobe"))       { score += 2; signals.push("Adobe Creative Cloud"); }
   if (_found(platforms, "hemnet"))      { score += 2; signals.push("Bostadssökning"); }
   if (_found(platforms, "lastpass"))    { score += 1; signals.push("Lösenordshanterare"); }
   if (_found(platforms, "office365"))   { score += 1; signals.push("Microsoft 365"); }
+  if (_found(platforms, "nelly"))       { score += 1; signals.push("Modehandel"); }
   if (_found(platforms, "freelancer"))  { score -= 1; signals.push("Frilansmarknad"); }
 
   if (score >= 6) return { level: "Hög",    score, signals };
   if (score >= 3) return { level: "Medel",  score, signals };
   if (score >= 1) return { level: "Medel–", score, signals };
   return { level: "Okänd", score, signals };
+}
+
+function _inferMediaBias(platforms, mediaOutlets) {
+  const found = mediaOutlets.map(m => m.name);
+
+  if (found.includes("samnytt"))                         return "Nationalistisk / alternativmedia";
+  if (found.includes("di") && !found.includes("samnytt")) return "Affärsorienterad";
+  if (found.includes("svd") && !found.includes("di"))   return "Konservativ-liberal";
+  if (found.includes("dn") && found.includes("di"))     return "Liberalt affärsfokus";
+  if (found.includes("aftonbladet") && !found.includes("svd") && !found.includes("di"))
+                                                         return "Kvällstidning / vänster";
+  if (found.includes("omni"))                            return "Bred nyhetskonsumtion";
+  if (found.length >= 3)                                 return "Bred medieprofil";
+  return null;
 }
 
 function _inferSecurityPosture(platforms, breaches) {
@@ -307,30 +370,28 @@ function _inferSecurityPosture(platforms, breaches) {
 function _buildNarrative(profile) {
   const parts = [];
 
-  // Location
   if (profile.locationSignals.some(l => l.confidence >= 90)) {
     parts.push("Personen är med hög säkerhet folkbokförd i Sverige.");
   } else if (profile.locationSignals.some(l => l.country === "Sverige")) {
     parts.push("Personen har trolig anknytning till Sverige baserat på plattformsnärvaro.");
   }
 
-  // Urban / rural
+  if (profile.genderSignal && profile.genderSignal.confidence >= 65) {
+    parts.push(`Könssignal: trolig ${profile.genderSignal.gender.toLowerCase()} (${profile.genderSignal.confidence}% konfidens).`);
+  }
+
   if (profile.urbanRural) {
     const ur = profile.urbanRural;
-    if (ur.label === "Urban") {
-      parts.push(`Livsstilssignaler pekar mot urban miljö (${ur.signals.join(", ")}).`);
-    } else if (ur.label === "Landsbygd / glesbygd") {
-      parts.push(`Livsstilssignaler pekar mot landsbygd / glesbygd (${ur.signals.join(", ")}).`);
+    if (ur.label !== "Blandad") {
+      parts.push(`Livsstilssignaler pekar mot ${ur.label.toLowerCase()} (${ur.signals.join(", ")}).`);
     }
   }
 
-  // Occupation
   if (profile.occupation?.length > 0) {
     const top = profile.occupation[0];
     parts.push(`Trolig yrkesroll: ${top.label} (${top.confidence}% konfidens).`);
   }
 
-  // Age
   if (profile.ageEstimate) {
     const { minAge, maxAge } = profile.ageEstimate;
     if (minAge !== 13 || maxAge !== 90) {
@@ -338,37 +399,31 @@ function _buildNarrative(profile) {
     }
   }
 
-  // Income
   if (profile.incomeSignal?.level && profile.incomeSignal.level !== "Okänd") {
     parts.push(`Inkomstsignal: ${profile.incomeSignal.level} (${profile.incomeSignal.signals.join(", ")}).`);
   }
 
-  // Lifestyle highlights
   const topLifestyle = profile.lifestyle.filter(l => l.confidence >= 75).map(l => l.trait);
   if (topLifestyle.length > 0) {
     parts.push(`Starka livsstilssignaler: ${topLifestyle.join(", ")}.`);
   }
 
-  // Political
   if (profile.political.length > 0) {
     const parties = profile.political.map(p => p.name).join(", ");
     parts.push(`Politisk aktivitet registrerad: ${parties}.`);
   }
 
-  // Media
   if (profile.mediaOutlets.length > 0) {
     const outlets = profile.mediaOutlets.map(m => m.name).join(", ");
     parts.push(`Mediakonsumtion: ${outlets}.`);
   }
 
-  // Security
   if (profile.securityPosture.label === "Kritisk" || profile.securityPosture.label === "Svag") {
     parts.push(`Säkerhetsprofil bedöms som ${profile.securityPosture.label.toLowerCase()} — ${profile.securityPosture.notes[0] || ""}.`);
   }
 
   return parts.join(" ") || "Otillräcklig data för att bygga profil.";
 }
-
 
 function buildProfile(platforms, summary, breaches) {
   const profile = {
@@ -386,6 +441,7 @@ function buildProfile(platforms, summary, breaches) {
     breachCount:     0,
     occupation:      null,
     ageEstimate:     null,
+    genderSignal:    null,
     locationSignals: [],
     urbanRural:      null,
     lifestyle:       [],
@@ -421,28 +477,22 @@ function buildProfile(platforms, summary, breaches) {
     if (!profile.interests.includes(meta.category)) profile.interests.push(meta.category);
   }
 
-  // Political lean — parties + media signals
   if (profile.political.length > 0 || _found(platforms, "samnytt")) {
     const leans = profile.political.map(p => p.lean).filter(Boolean);
-    if (leans.includes("far-left"))         profile.politicalLean = "Långt vänster";
-    else if (leans.includes("left"))        profile.politicalLean = "Vänster / Grön";
-    else if (leans.includes("center"))      profile.politicalLean = "Center";
+    if (leans.includes("far-left"))    profile.politicalLean = "Långt vänster";
+    else if (leans.includes("left"))   profile.politicalLean = "Vänster / Grön";
+    else if (leans.includes("center")) profile.politicalLean = "Center";
 
     if (_found(platforms, "samnytt") && !profile.politicalLean) {
       profile.politicalLean = "Nationalistisk / höger";
     }
   }
 
-  const altRight = profile.mediaOutlets.some(m => m.name === "samnytt");
-  const leftTab  = profile.mediaOutlets.some(m => m.name === "aftonbladet");
-  const business = profile.mediaOutlets.some(m => m.name === "di");
-  if (altRight)      profile.mediaBias = "Nationalistisk / alternativmedia";
-  else if (business) profile.mediaBias = "Affärsorienterad";
-  else if (leftTab)  profile.mediaBias = "Kvällstidning / vänster";
+  profile.mediaBias = _inferMediaBias(platforms, profile.mediaOutlets);
 
-  profile.breachCount = Array.isArray(breaches) ? breaches.length : 0;
-
+  profile.breachCount     = Array.isArray(breaches) ? breaches.length : 0;
   profile.occupation      = _inferOccupation(platforms);
+  profile.genderSignal    = _inferGender(platforms);
   profile.ageEstimate     = _inferAge(platforms, breaches);
   profile.locationSignals = _inferLocation(platforms);
   profile.urbanRural      = _inferUrbanRural(platforms);
@@ -451,13 +501,13 @@ function buildProfile(platforms, summary, breaches) {
   profile.securityPosture = _inferSecurityPosture(platforms, breaches);
 
   const ms = platforms?.["microsoft"];
-  if (ms?.backupEmail)                               profile.riskSignals.push(`Microsoft backup-e-post: ${ms.backupEmail}`);
+  if (ms?.backupEmail)                                       profile.riskSignals.push(`Microsoft backup-e-post: ${ms.backupEmail}`);
   if (ms?.twoFA === false && _found(platforms, "microsoft")) profile.riskSignals.push("Microsoft-konto saknar 2FA");
-  if (Array.isArray(ms?.phones) && ms.phones.length) profile.riskSignals.push(`Telefon på Microsoft: ${ms.phones[0]}`);
+  if (Array.isArray(ms?.phones) && ms.phones.length)        profile.riskSignals.push(`Telefon på Microsoft: ${ms.phones[0]}`);
 
-  if (profile.breachCount > 0)        profile.riskSignals.push(`Hittad i ${profile.breachCount} dataintrång`);
-  if (summary?.darknetCount  > 0)     profile.riskSignals.push(`Förekommer i ${summary.darknetCount} darknet-dataset`);
-  if (summary?.credLogsCount > 0)     profile.riskSignals.push(`Förekommer i ${summary.credLogsCount} credential logs`);
+  if (profile.breachCount > 0)    profile.riskSignals.push(`Hittad i ${profile.breachCount} dataintrång`);
+  if (summary?.darknetCount  > 0) profile.riskSignals.push(`Förekommer i ${summary.darknetCount} darknet-dataset`);
+  if (summary?.credLogsCount > 0) profile.riskSignals.push(`Förekommer i ${summary.credLogsCount} credential logs`);
 
   const adultFound = Object.keys(platforms || {})
     .filter(k => _found(platforms, k) && PLATFORM_META[k]?.category === "Adult");
