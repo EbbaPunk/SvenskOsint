@@ -179,4 +179,10 @@ function analyse(records) {
   };
 }
 
-module.exports = { analyse, bucketMeta, riskLabel, fmtDate, percent, RISK_COLORS };
+function normalizeBreach(b) {
+  if (!b || typeof b !== "object") return b;
+  const raw = b.BreachDate ?? b.AddedDate ?? b.date ?? null;
+  return { ...b, date: raw };
+}
+
+module.exports = { analyse, bucketMeta, riskLabel, fmtDate, percent, RISK_COLORS, normalizeBreach };

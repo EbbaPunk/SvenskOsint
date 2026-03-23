@@ -5,7 +5,7 @@ const { spawn }    = require("child_process");
 const path         = require("path");
 const { intelxSearch }    = require("../lib/intelx");
 const { breachvipSearch } = require("../lib/breachvip");
-const { analyse }         = require("../lib/parser");
+const { analyse, normalizeBreach } = require("../lib/parser");
 const { buildPdf }        = require("../lib/pdf");
 
 const router = express.Router();
@@ -79,7 +79,7 @@ router.post("/", async (req, res) => {
   const [records, platforms, breaches] = await Promise.all([
     intelxSearch(target).catch(err => { console.error("[generate] intelx:", err.message); return []; }),
     runPlatformCheck(target, personnummer || ""),
-    breachvipSearch(target).catch(err => { console.error("[generate] breachvip:", err.message); return []; }),
+    breachvipSearch(target).catch(err => { console.error("[generate] breachvip:", err.message); return []; }).then(bs => bs.map(normalizeBreach)),
   ]);
 
   const summary = records.length > 0 ? analyse(records) : emptySummary();

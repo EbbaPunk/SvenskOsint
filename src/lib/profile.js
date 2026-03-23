@@ -93,7 +93,7 @@ function _earliestBreach(breaches) {
   if (!Array.isArray(breaches) || breaches.length === 0) return null;
   let earliest = null;
   for (const b of breaches) {
-    const raw = b?.BreachDate || b?.date || b?.AddedDate;
+    const raw = b?.date;
     if (!raw) continue;
     const d = new Date(raw);
     if (!isNaN(d) && (!earliest || d < earliest)) earliest = d;
@@ -162,29 +162,38 @@ function _inferOccupation(platforms) {
 }
 
 function _inferGender(platforms) {
-  let femaleScore = 0;
-  let maleScore   = 0;
-  const signals   = [];
+  const femaleHits = [];
+  const maleHits   = [];
 
-  if (_found(platforms, "nelly"))         { femaleScore += 4; signals.push({ s: "nelly", g: "F" }); }
-  if (_found(platforms, "cocopanda"))     { femaleScore += 3; signals.push({ s: "cocopanda", g: "F" }); }
-  if (_found(platforms, "bodybuilding"))  { maleScore   += 2; signals.push({ s: "bodybuilding", g: "M" }); }
-  if (_found(platforms, "allsvenskan"))   { maleScore   += 2; signals.push({ s: "allsvenskan", g: "M" }); }
+  if (_found(platforms, "nelly"))        femaleHits.push({ s: "nelly",          weight: 3 });
+  if (_found(platforms, "cocopanda"))    femaleHits.push({ s: "cocopanda",       weight: 2 });
+  if (_found(platforms, "bodybuilding")) maleHits.push(  { s: "bodybuilding",    weight: 2 });
+  if (_found(platforms, "allsvenskan"))  maleHits.push(  { s: "allsvenskan",     weight: 2 });
   if (_found(platforms, "Jägarförbundet") || _found(platforms, "Jägarförbundet/SSN"))
-                                          { maleScore   += 2; signals.push({ s: "jägarförbundet", g: "M" }); }
-  if (_found(platforms, "medal"))         { maleScore   += 2; signals.push({ s: "medal", g: "M" }); }
-  if (_found(platforms, "bytbil"))        { maleScore   += 1; signals.push({ s: "bytbil", g: "M" }); }
-  if (_found(platforms, "hemnet"))        { femaleScore += 1; maleScore += 1; }
+                                         maleHits.push(  { s: "jägarförbundet",  weight: 2 });
+  if (_found(platforms, "medal"))        maleHits.push(  { s: "medal",           weight: 2 });
+  if (_found(platforms, "bytbil"))       maleHits.push(  { s: "bytbil",          weight: 1 });
 
-  const total = femaleScore + maleScore;
-  if (total === 0) return null;
+  const femaleSignals = femaleHits.length;
+  const maleSignals   = maleHits.length;
+
+  if (femaleSignals + maleSignals < 2) return null;
+
+  const femaleScore = femaleHits.reduce((s, h) => s + h.weight, 0);
+  const maleScore   = maleHits.reduce((s, h)   => s + h.weight, 0);
+  const total       = femaleScore + maleScore;
+
+  const BASE_CONFIDENCE = 55;
+  const signalBonus     = Math.min(20, (femaleSignals + maleSignals - 2) * 5);
 
   if (femaleScore > maleScore) {
-    return { gender: "Kvinna", confidence: Math.min(92, Math.round((femaleScore / total) * 100)), signals };
+    const raw = Math.round((femaleScore / total) * 100);
+    return { gender: "Kvinna", confidence: Math.min(82, BASE_CONFIDENCE + signalBonus + Math.round((raw - 50) * 0.4)), signals: femaleHits };
   } else if (maleScore > femaleScore) {
-    return { gender: "Man", confidence: Math.min(92, Math.round((maleScore / total) * 100)), signals };
+    const raw = Math.round((maleScore / total) * 100);
+    return { gender: "Man",   confidence: Math.min(82, BASE_CONFIDENCE + signalBonus + Math.round((raw - 50) * 0.4)), signals: maleHits };
   }
-  return { gender: "Okänt", confidence: 50, signals };
+  return { gender: "Okänt", confidence: 50, signals: [...femaleHits, ...maleHits] };
 }
 
 function _inferAge(platforms, breaches) {
@@ -335,17 +344,44 @@ function _inferIncomeSignal(platforms) {
 }
 
 function _inferMediaBias(platforms, mediaOutlets) {
-  const found = mediaOutlets.map(m => m.name);
+  const found = new Set(mediaOutlets.map(m => m.name));
+  if (found.size === 0) return null;
 
-  if (found.includes("samnytt"))                         return "Nationalistisk / alternativmedia";
-  if (found.includes("di") && !found.includes("samnytt")) return "Affärsorienterad";
-  if (found.includes("svd") && !found.includes("di"))   return "Konservativ-liberal";
-  if (found.includes("dn") && found.includes("di"))     return "Liberalt affärsfokus";
-  if (found.includes("aftonbladet") && !found.includes("svd") && !found.includes("di"))
-                                                         return "Kvällstidning / vänster";
-  if (found.includes("omni"))                            return "Bred nyhetskonsumtion";
-  if (found.length >= 3)                                 return "Bred medieprofil";
-  return null;
+  let right = 0, left = 0, business = 0, broad = 0;
+
+  if (found.has("samnytt"))     right    += 4;
+  if (found.has("svd"))         right    += 1;
+  if (found.has("aftonbladet")) left     += 3;
+  if (found.has("expressen"))   left     += 1;
+  if (found.has("di"))          business += 3;
+  if (found.has("dn"))          business += 1;
+  if (found.has("omni"))        broad    += 2;
+  if (found.has("tv4"))         broad    += 1;
+
+  const scores = { right, left, business, broad };
+  const top = Object.entries(scores).sort((a, b) => b[1] - a[1]);
+
+  if (top[0][1] === 0) return null;
+
+  const dominant = top[0][0];
+  const second   = top[1][0];
+  const mixed    = top[1][1] > 0 && top[0][1] - top[1][1] <= 1;
+
+  if (mixed) {
+    if (dominant === "right"    && second === "business") return "Höger / affärsorienterad";
+    if (dominant === "business" && second === "right")    return "Affärs- / högerorienterad";
+    if (dominant === "left"     && second === "broad")    return "Vänster / bred nyhetskonsumtion";
+    if (dominant === "business" && second === "broad")    return "Affärsorienterad / bred";
+    return "Blandad medieprofil";
+  }
+
+  const labels = {
+    right:    "Nationalistisk / höger",
+    left:     "Vänster / kvällstidning",
+    business: "Affärsorienterad",
+    broad:    "Bred nyhetskonsumtion",
+  };
+  return labels[dominant] ?? null;
 }
 
 function _inferSecurityPosture(platforms, breaches) {
@@ -367,40 +403,56 @@ function _inferSecurityPosture(platforms, breaches) {
   return { score, label, notes };
 }
 
+const HEDGE = {
+  HIGH:   "",
+  MEDIUM: "Indikationer tyder på att ",
+  LOW:    "Svaga signaler antyder möjligen att ",
+};
+
+function _hedged(confidence, statement) {
+  if (confidence >= 80) return statement;
+  if (confidence >= 55) return HEDGE.MEDIUM + statement.charAt(0).toLowerCase() + statement.slice(1);
+  return HEDGE.LOW + statement.charAt(0).toLowerCase() + statement.slice(1);
+}
+
 function _buildNarrative(profile) {
+  if (profile.totalFound < 3) {
+    return `För få plattformsträffar (${profile.totalFound}) för att bygga en tillförlitlig profil. Alla slutledningar nedan bör betraktas som osäkra.`;
+  }
+
   const parts = [];
 
-  if (profile.locationSignals.some(l => l.confidence >= 90)) {
-    parts.push("Personen är med hög säkerhet folkbokförd i Sverige.");
-  } else if (profile.locationSignals.some(l => l.country === "Sverige")) {
-    parts.push("Personen har trolig anknytning till Sverige baserat på plattformsnärvaro.");
+  const bestLocation = profile.locationSignals.sort((a, b) => b.confidence - a.confidence)[0];
+  if (bestLocation) {
+    parts.push(_hedged(bestLocation.confidence, `Personen är folkbokförd eller verksam i ${bestLocation.country}.`));
   }
 
-  if (profile.genderSignal && profile.genderSignal.confidence >= 65) {
-    parts.push(`Könssignal: trolig ${profile.genderSignal.gender.toLowerCase()} (${profile.genderSignal.confidence}% konfidens).`);
+  if (profile.genderSignal && profile.genderSignal.confidence >= 60) {
+    parts.push(_hedged(profile.genderSignal.confidence, `Könssignal pekar mot ${profile.genderSignal.gender.toLowerCase()}.`));
   }
 
-  if (profile.urbanRural) {
+  if (profile.urbanRural && profile.urbanRural.label !== "Blandad") {
     const ur = profile.urbanRural;
-    if (ur.label !== "Blandad") {
-      parts.push(`Livsstilssignaler pekar mot ${ur.label.toLowerCase()} (${ur.signals.join(", ")}).`);
-    }
+    parts.push(_hedged(ur.confidence, `Livsstilssignaler pekar mot ${ur.label.toLowerCase()} miljö (${ur.signals.join(", ")}).`));
   }
 
   if (profile.occupation?.length > 0) {
     const top = profile.occupation[0];
-    parts.push(`Trolig yrkesroll: ${top.label} (${top.confidence}% konfidens).`);
-  }
-
-  if (profile.ageEstimate) {
-    const { minAge, maxAge } = profile.ageEstimate;
-    if (minAge !== 13 || maxAge !== 90) {
-      parts.push(`Uppskattad ålder: ${minAge}–${maxAge} år.`);
+    if (top.confidence >= 25) {
+      parts.push(_hedged(top.confidence, `Trolig yrkesroll: ${top.label}.`));
     }
   }
 
-  if (profile.incomeSignal?.level && profile.incomeSignal.level !== "Okänd") {
-    parts.push(`Inkomstsignal: ${profile.incomeSignal.level} (${profile.incomeSignal.signals.join(", ")}).`);
+  if (profile.ageEstimate) {
+    const { minAge, maxAge, signals } = profile.ageEstimate;
+    const bestWeight = signals.length ? Math.max(...signals.map(s => s.weight)) : 0;
+    if ((minAge !== 13 || maxAge !== 90) && bestWeight >= 50) {
+      parts.push(_hedged(bestWeight, `Uppskattad ålder: ${minAge}–${maxAge} år.`));
+    }
+  }
+
+  if (profile.incomeSignal?.level && profile.incomeSignal.level !== "Okänd" && profile.incomeSignal.score >= 3) {
+    parts.push(_hedged(55, `Inkomstsignal: ${profile.incomeSignal.level} (${profile.incomeSignal.signals.join(", ")}).`));
   }
 
   const topLifestyle = profile.lifestyle.filter(l => l.confidence >= 75).map(l => l.trait);
@@ -410,12 +462,14 @@ function _buildNarrative(profile) {
 
   if (profile.political.length > 0) {
     const parties = profile.political.map(p => p.name).join(", ");
-    parts.push(`Politisk aktivitet registrerad: ${parties}.`);
+    const leanNote = profile.politicalLean ? ` (${profile.politicalLean})` : "";
+    parts.push(`Politisk aktivitet registrerad: ${parties}${leanNote}.`);
   }
 
   if (profile.mediaOutlets.length > 0) {
     const outlets = profile.mediaOutlets.map(m => m.name).join(", ");
-    parts.push(`Mediakonsumtion: ${outlets}.`);
+    const biasNote = profile.mediaBias ? ` — ${profile.mediaBias}` : "";
+    parts.push(`Mediakonsumtion: ${outlets}${biasNote}.`);
   }
 
   if (profile.securityPosture.label === "Kritisk" || profile.securityPosture.label === "Svag") {
@@ -479,12 +533,20 @@ function buildProfile(platforms, summary, breaches) {
 
   if (profile.political.length > 0 || _found(platforms, "samnytt")) {
     const leans = profile.political.map(p => p.lean).filter(Boolean);
-    if (leans.includes("far-left"))    profile.politicalLean = "Långt vänster";
-    else if (leans.includes("left"))   profile.politicalLean = "Vänster / Grön";
-    else if (leans.includes("center")) profile.politicalLean = "Center";
+    const uniqueLeans = [...new Set(leans)];
 
-    if (_found(platforms, "samnytt") && !profile.politicalLean) {
+    if (_found(platforms, "samnytt")) uniqueLeans.push("far-right");
+
+    if (uniqueLeans.length > 1) {
+      profile.politicalLean = "Blandad / oklar politisk signal";
+    } else if (uniqueLeans.includes("far-right"))  {
       profile.politicalLean = "Nationalistisk / höger";
+    } else if (uniqueLeans.includes("far-left"))   {
+      profile.politicalLean = "Långt vänster";
+    } else if (uniqueLeans.includes("left"))       {
+      profile.politicalLean = "Vänster / Grön";
+    } else if (uniqueLeans.includes("center"))     {
+      profile.politicalLean = "Center";
     }
   }
 
@@ -514,7 +576,7 @@ function buildProfile(platforms, summary, breaches) {
   if (adultFound.length)              profile.riskSignals.push(`Vuxenplattformar: ${adultFound.join(", ")}`);
   if (profile.geography.includes("RU")) profile.riskSignals.push("Ryskt plattformsnärvaro (mail.ru / Rambler)");
   if (_found(platforms, "Jägarförbundet") || _found(platforms, "Jägarförbundet/SSN"))
-    profile.riskSignals.push("Registrerad jägare — trolig vapeninnehavare");
+    profile.riskSignals.push("Registrerad jägare — trolig vapeninnehavare [KÄNSLIG UPPGIFT — behandla med diskretion]");
 
   profile.narrative = _buildNarrative(profile);
 
