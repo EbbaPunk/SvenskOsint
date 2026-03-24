@@ -27,6 +27,7 @@ from .sweden.retail.foodora import foodora
 from .sweden.retail.power import power
 from .sweden.retail.nelly import nelly
 from .sweden.retail.cocopanda import cocopanda
+from .sweden.retail.ammocenter import ammocenter
 
 # Community
 from .sweden.community.byggahus import byggahus
@@ -125,6 +126,7 @@ def _modules():
         ("power", power),
         ("nelly", nelly),
         ("cocopanda", cocopanda),
+        ("ammocenter", ammocenter),
     ]
 
 

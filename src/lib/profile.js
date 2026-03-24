@@ -23,6 +23,7 @@ const PLATFORM_META = {
   power:                 { category: "Retail",       country: "SE", tag: "Elektronikhandel" },
   nelly:                 { category: "Retail",       country: "SE", tag: "Modehandel (kvinna)" },
   cocopanda:             { category: "Retail",       country: "SE", tag: "Skönhet / kosmetika" },
+  ammocenter:            { category: "Retail",       country: "SE", tag: "Ammunition / vapentillbehör" },
   "7-Eleven":            { category: "Retail",       country: "SE", tag: "Butikskedja / kvittoapp" },
   "Pressbyrån":          { category: "Retail",       country: "SE", tag: "Butikskedja / kvittoapp" },
   foodora:               { category: "Food",         country: "SE", tag: "Matleverans" },
@@ -60,7 +61,7 @@ const OCCUPATION_MAX = {
   "Affärsprofil / Säljare":         10,
   "Hantverkare / Heminredning":      7,
   "Religiös / Konservativ profil":   4,
-  "Jakt / Friluftsliv":              8,
+  "Jakt / Friluftsliv":             12,
   "Mode / Skönhet":                  5,
   "Sport / Idrott":                  4,
 };
@@ -140,6 +141,7 @@ function _inferOccupation(platforms) {
   if (_found(platforms, "Jägarförbundet") || _found(platforms, "Jägarförbundet/SSN"))
                                           scores["Jakt / Friluftsliv"]        += 5;
   if (_found(platforms, "utsidan"))       scores["Jakt / Friluftsliv"]        += 3;
+  if (_found(platforms, "ammocenter"))    scores["Jakt / Friluftsliv"]        += 4;
 
   if (_found(platforms, "bible"))         scores["Religiös / Konservativ profil"] += 4;
 
@@ -311,6 +313,7 @@ function _inferLifestyle(platforms) {
   if (_found(platforms, "cocopanda"))     traits.push({ trait: "Skönhet / kosmetika",           confidence: 75 });
   if (_found(platforms, "Jägarförbundet") || _found(platforms, "Jägarförbundet/SSN"))
                                           traits.push({ trait: "Jägare / skogsbruk",            confidence: 90 });
+  if (_found(platforms, "ammocenter"))    traits.push({ trait: "Jakt / skytte / vapensport",    confidence: 85 });
   if (_found(platforms, "utsidan"))       traits.push({ trait: "Friluftsliv / natur",           confidence: 80 });
   if (_found(platforms, "foodora") || _found(platforms, "7-Eleven") || _found(platforms, "Pressbyrån"))
                                           traits.push({ trait: "Urban livsstil",                confidence: 65 });
@@ -577,6 +580,8 @@ function buildProfile(platforms, summary, breaches) {
   if (profile.geography.includes("RU")) profile.riskSignals.push("Ryskt plattformsnärvaro (mail.ru / Rambler)");
   if (_found(platforms, "Jägarförbundet") || _found(platforms, "Jägarförbundet/SSN"))
     profile.riskSignals.push("Registrerad jägare — trolig vapeninnehavare [KÄNSLIG UPPGIFT — behandla med diskretion]");
+  if (_found(platforms, "ammocenter"))
+    profile.riskSignals.push("Konto på ammocenter.se — stark indikation på vapeninnehav [KÄNSLIG UPPGIFT — behandla med diskretion]");
 
   profile.narrative = _buildNarrative(profile);
 
